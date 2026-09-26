@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "ignorePatterns": ["node_modules", "playwright-report", "test-results"],
+  "overrides": [
+    {
+      // End-to-end steps drive one page and must run strictly in order.
+      "files": ["tests/**"],
+      "rules": {
+        "no-await-in-loop": "off"
+      }
+    }
+  ]
+}

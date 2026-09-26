@@ -1,0 +1,26 @@
+{
+  "name": "arcade-games",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Snake, Pac-Man and a car racing game, playable in the browser. Zero runtime dependencies.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "lint": "oxlint --deny-warnings",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.sw.json && tsc -p tsconfig.node.json",
+    "test:unit": "node --test \"tests/unit/*.test.js\"",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:e2e",
+    "check": "npm run lint && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.19.0",
+    "oxlint": "1.85.0",
+    "typescript": "7.0.2"
+  }
+}

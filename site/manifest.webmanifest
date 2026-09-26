@@ -1,0 +1,14 @@
+{
+  "name": "Arcade",
+  "short_name": "Arcade",
+  "description": "Snake, Pac-Man et Course : trois jeux d'arcade dans le navigateur.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "icons": [
+    { "src": "assets/icons/arcade.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

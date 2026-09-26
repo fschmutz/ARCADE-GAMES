@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es2024", "dom"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "moduleDetection": "auto",
+    "types": ["node"]
+  },
+  "include": ["scripts/**/*.mjs", "tests/**/*.js", "playwright.config.js"],
+  "exclude": []
+}
