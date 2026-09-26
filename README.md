@@ -32,6 +32,18 @@ The in-game text is in French. Best scores are kept in the browser per game, mod
 - Strict Content Security Policy on every page: no inline script, no inline style, no third-party origin.
 - Installable web app with a network-first service worker, so a new deploy shows on the next load and the games still open offline.
 - Type-checked in strict mode with TypeScript 7 over JSDoc, linted with oxlint, unit tests with the Node test runner, end-to-end tests with Playwright.
+- Search and sharing: canonical URLs, Open Graph and Twitter cards with a social preview image, schema.org JSON-LD (`WebSite`, `VideoGame`), sitemap, `llms.txt`, branded 404.
+
+## Quality gates
+
+Every pull request and every push to `main` runs, and branch protection requires:
+
+| Job | What it proves |
+|---|---|
+| Lint, typecheck, end-to-end | Supply chain (every action SHA-pinned to its latest release, every dependency at its latest version unless declared in `.dependency-holds.json`), `npm audit`, oxlint, strict TypeScript, unit tests, the page contract (metadata, CSP, links, sitemap, offline cache list), gameplay on desktop Chrome |
+| E2E matrix | Gameplay on desktop WebKit (Safari engine), then layout and touch controls on a Pixel 7, iPhone 15, iPhone SE and iPad: every page fits the screen, no sideways scroll, a tap starts each game |
+
+A green `main` deploys `site/` to GitHub Pages, then smoke-tests every sitemap URL and the 404 on the live site.
 
 ## Develop
 
@@ -39,11 +51,12 @@ Requires Node 24 or newer and Google Chrome.
 
 ```bash
 npm ci
-npm run serve      # http://127.0.0.1:4173/
-npm run check      # lint + typecheck + unit + end-to-end tests
+npx playwright install webkit   # once, for the Safari-engine projects
+npm run serve                   # http://127.0.0.1:4173/ARCADE-GAMES/
+npm run check                   # lint + typecheck + unit + page contract + all e2e projects
 ```
 
-Every push to `main` runs the same checks in GitHub Actions and, when they pass, deploys `site/` to GitHub Pages.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the ground rules and [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ## Credits
 

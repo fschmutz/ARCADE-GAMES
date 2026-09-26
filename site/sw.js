@@ -3,7 +3,7 @@
 
 // Network first so a deploy is visible on the next load; the cache only serves when offline.
 const worker = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
-const CACHE = 'arcade-v2';
+const CACHE = 'arcade-v3';
 const PRECACHE = [
   './',
   './manifest.webmanifest',

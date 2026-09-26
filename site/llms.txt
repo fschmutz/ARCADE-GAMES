@@ -1,0 +1,13 @@
+# Arcade
+
+> Three free browser games (Snake, Pac-Man, a car racing game), playable on desktop and mobile, even offline. In-game text is in French. No account, no tracking, no ads.
+
+## Games
+
+- [Snake](https://fschmutz.github.io/ARCADE-GAMES/snake/): eat apples and the golden apple, avoid walls and your tail. Modes: Classique, Zen (no death), Portails. 1, 3 or 5 apples, four speeds.
+- [Pac-Man](https://fschmutz.github.io/ARCADE-GAMES/pacman/): clear the maze, eat the bonus fruit, escape four ghosts with arcade chase logic. Modes: Classique (3 lives) and Chrono (3 minutes).
+- [Course](https://fschmutz.github.io/ARCADE-GAMES/car/): weave through cars, vans and trucks; near misses build a combo, nitro recharges. Modes: Autoroute, Double sens, Défi du jour. Four speeds.
+
+## Source
+
+- [GitHub repository](https://github.com/fschmutz/ARCADE-GAMES): plain HTML, CSS and ES modules, MIT licensed.

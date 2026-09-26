@@ -1,0 +1,30 @@
+name: Bug
+description: Something does not work or looks broken
+labels: [bug]
+body:
+  - type: dropdown
+    id: game
+    attributes:
+      label: Where
+      options: [Home page, Snake, Pac-Man, Course, Everywhere]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      placeholder: Steps to reproduce, mode and speed if it matters.
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: e.g. iPhone 15, Safari 26 / Windows, Chrome 141
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot or recording
+      description: Drag an image here if you have one.

@@ -1,0 +1,6 @@
+{
+  "@types/node": {
+    "major": 24,
+    "reason": "Type definitions must match the Node runtime CI runs (.node-version = 24, the active LTS). Lift together with .node-version when Node 26 becomes LTS (October 2026)."
+  }
+}

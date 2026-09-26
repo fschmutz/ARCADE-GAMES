@@ -29,6 +29,7 @@ const TRAFFIC_COLORS = ['#ef4444', '#f59e0b', '#22d3ee', '#10b981', '#ec4899', '
 
 const canvas = Arcade.el('game', HTMLCanvasElement);
 const ctx = Arcade.context2d(canvas, W, H);
+Arcade.fitCanvas(canvas, { aspect: W / H, maxWidth: W });
 const scoreEl = Arcade.el('score', HTMLElement);
 const bestEl = Arcade.el('best', HTMLElement);
 const kmhEl = Arcade.el('kmh', HTMLElement);

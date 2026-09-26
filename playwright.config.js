@@ -1,7 +1,8 @@
 // @ts-check
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 4173;
+const desktop = { width: 900, height: 1000 };
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -11,13 +12,20 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
-    channel: 'chrome',
     colorScheme: 'dark',
-    viewport: { width: 900, height: 1000 },
   },
+  projects: [
+    // Chromium runs as the system Chrome channel, never the bundled build.
+    { name: 'desktop-chrome', testMatch: /arcade\.spec\.js/, use: { channel: 'chrome', viewport: desktop } },
+    { name: 'desktop-webkit', testMatch: /arcade\.spec\.js/, use: { ...devices['Desktop Safari'], viewport: desktop } },
+    { name: 'phone-chrome', testMatch: /touch\.spec\.js/, use: { ...devices['Pixel 7'], channel: 'chrome' } },
+    { name: 'phone-safari', testMatch: /touch\.spec\.js/, use: { ...devices['iPhone 15'] } },
+    { name: 'small-phone-safari', testMatch: /touch\.spec\.js/, use: { ...devices['iPhone SE'] } },
+    { name: 'tablet-safari', testMatch: /touch\.spec\.js/, use: { ...devices['iPad Pro 11'] } },
+  ],
   webServer: {
     command: 'node scripts/serve.mjs',
-    url: `http://127.0.0.1:${PORT}/`,
+    url: `http://127.0.0.1:${PORT}/ARCADE-GAMES/`,
     reuseExistingServer: !process.env.CI,
   },
 });

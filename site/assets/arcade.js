@@ -55,6 +55,30 @@ export function context2d(canvas, width, height) {
   return ctx;
 }
 
+/**
+ * Sizes the canvas so the whole page (header, options, board, help, credit) fits the
+ * viewport height, whatever the device, and keeps doing so on resize and rotation.
+ * @param {HTMLCanvasElement} canvas @param {{ aspect: number, maxWidth: number, minWidth?: number }} size
+ */
+export function fitCanvas(canvas, { aspect, maxWidth, minWidth = 180 }) {
+  const fit = () => {
+    const kids = [...document.body.children].filter(node => node instanceof HTMLElement && node.offsetParent !== null);
+    const first = kids[0];
+    const last = kids.at(-1);
+    if (!first || !last) return;
+    const body = getComputedStyle(document.body);
+    const content = last.getBoundingClientRect().bottom - first.getBoundingClientRect().top
+      + parseFloat(body.paddingTop) + parseFloat(body.paddingBottom);
+    const others = content - canvas.getBoundingClientRect().height;
+    const byHeight = (window.innerHeight - others) * aspect;
+    const byWidth = document.documentElement.clientWidth * 0.92 - 18;
+    canvas.style.width = `${Math.round(Math.max(minWidth, Math.min(maxWidth, byWidth, byHeight)))}px`;
+  };
+  fit();
+  window.addEventListener('resize', fit);
+  void document.fonts.ready.then(fit);
+}
+
 export const isDark = () => document.documentElement.classList.contains('dark');
 
 /** @param {() => void} [onChange] */

@@ -54,6 +54,7 @@ const GHOST_DEFS = [
 
 const canvas = Arcade.el('game', HTMLCanvasElement);
 const ctx = Arcade.context2d(canvas, W, H);
+Arcade.fitCanvas(canvas, { aspect: W / H, maxWidth: W });
 const scoreEl = Arcade.el('score', HTMLElement);
 const bestEl = Arcade.el('best', HTMLElement);
 const levelEl = Arcade.el('level', HTMLElement);

@@ -1,16 +1,36 @@
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-    groups:
-      dev-tooling:
-        patterns: ["*"]
+  # Actions are pinned by commit SHA; Dependabot moves the SHA and rewrites the `# vX.Y.Z`
+  # comment. scripts/check-latest.mjs fails CI while such a bump sits unmerged.
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+      day: monday
+      time: '05:00'
+      timezone: Europe/Paris
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
     groups:
       actions:
-        patterns: ["*"]
+        patterns: ['*']
+
+  # Dev tooling only: nothing from npm ships to the browser.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '05:00'
+      timezone: Europe/Paris
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps
+    groups:
+      dev-tooling:
+        patterns: ['*']
+    ignore:
+      # Mirrors the hold in .dependency-holds.json: types follow the Node LTS in .node-version.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']

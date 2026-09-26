@@ -1,3 +1,13 @@
+# Gates every pull request and every push to main; a green main deploys to GitHub Pages.
+#
+# Every action is pinned to a full commit SHA with the release in a comment: a tag is a
+# mutable pointer its owner can move. scripts/check-latest.mjs fails the build when a pin
+# (action SHA or npm version) is behind its latest stable release, so a Dependabot bump
+# that nobody merged turns main red instead of rotting quietly. The only exceptions are
+# the named holds in .dependency-holds.json.
+#
+# Branch protection requires both gate jobs by name. Renaming a job silently drops it
+# from the required checks, so rename the context in the protection rule at the same time.
 name: CI
 
 on:
@@ -26,16 +36,60 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      - run: npm ci
+      # Lifecycle scripts are the classic npm supply-chain entry point; nothing here needs one.
+      - run: npm ci --ignore-scripts
+      - name: Supply chain (actions SHA-pinned to latest release, dependencies current)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/check-latest.mjs
+      - name: Known vulnerabilities (npm audit, any severity fails)
+        run: npm audit --audit-level=low
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      - name: Unit tests and page contract
+        run: npm run test:unit
+      - name: End-to-end, desktop Chrome
+        run: npx playwright test --project=desktop-chrome
         env:
-          CI: "true"
+          CI: 'true'
+
+  matrix:
+    name: E2E matrix (WebKit desktop, phones, tablet)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci --ignore-scripts
+      # Browser builds are tied to the Playwright version, so the lockfile is the cache key.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-webkit-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      # Chromium runs as the runner's system Chrome (channel: chrome); only WebKit is downloaded.
+      - name: Install WebKit
+        run: |
+          if [ "${{ steps.browsers.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps webkit
+          else
+            npx playwright install --with-deps webkit
+          fi
+      - name: WebKit desktop, Pixel 7, iPhone 15, iPhone SE, iPad
+        run: >-
+          npx playwright test --project=desktop-webkit --project=phone-chrome
+          --project=phone-safari --project=small-phone-safari --project=tablet-safari
+        env:
+          CI: 'true'
 
   deploy:
     name: Deploy to GitHub Pages
-    needs: check
+    needs: [check, matrix]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -55,3 +109,21 @@ jobs:
           path: site
       - id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+      # Proves what the deploy served, not what it uploaded: every sitemap URL answers 200
+      # with this commit's HTML, and an unknown path gets the branded 404.
+      - name: Smoke test the live site
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          sleep 15
+          for url in $(grep -o '<loc>[^<]*</loc>' site/sitemap.xml | sed 's/<[^>]*>//g'); do
+            for attempt in 1 2 3 4 5 6; do
+              if curl -fsS "$url" | grep -q 'Lino from Marrakech'; then echo "ok  $url"; break; fi
+              [ "$attempt" = 6 ] && { echo "::error::$url did not serve the site"; exit 1; }
+              sleep 10
+            done
+          done
+          status=$(curl -s -o /tmp/404.html -w '%{http_code}' "${PAGE_URL}this-page-does-not-exist/")
+          test "$status" = 404 && grep -q 'Page introuvable' /tmp/404.html
+          echo "ok  custom 404"

@@ -24,6 +24,7 @@ const DIRS = {
 
 const canvas = Arcade.el('game', HTMLCanvasElement);
 const ctx = Arcade.context2d(canvas, SIZE, SIZE);
+Arcade.fitCanvas(canvas, { aspect: 1, maxWidth: SIZE });
 const scoreEl = Arcade.el('score', HTMLElement);
 const bestEl = Arcade.el('best', HTMLElement);
 const overlay = Arcade.overlay();
