@@ -10,6 +10,7 @@ const GAMES = [
   { path: 'snake/', title: 'Snake', started: /running/ },
   { path: 'pacman/', title: 'Pac-Man', started: /ready|running/ },
   { path: 'car/', title: 'Course', started: /running|crashed/ },
+  { path: 'casse/', title: 'Casse-briques', started: /running/ },
 ];
 
 /** @param {Page} page */
@@ -84,6 +85,23 @@ test('Snake: a swipe steers the snake', async ({ page }) => {
   await canvas.dispatchEvent('touchend', { changedTouches: [{ identifier: 1, clientX: cx, clientY: cy - 80 }] });
   await page.waitForTimeout(400);
   await expect(page.locator('#board')).toHaveAttribute('data-state', 'running');
+});
+
+test('Casse-briques: touching the board launches the ball, dragging carries the paddle', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto(`${ROOT}casse/`);
+  await page.locator('#ov-btn').tap();
+  await expect(page.locator('#board')).toHaveAttribute('data-state', 'running');
+  const canvas = page.locator('#game');
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('canvas has no box');
+  const y = box.y + box.height * 0.85;
+  await canvas.dispatchEvent('touchstart', { touches: [{ identifier: 1, clientX: box.x + box.width * 0.5, clientY: y }] });
+  await canvas.dispatchEvent('touchmove', { touches: [{ identifier: 1, clientX: box.x + box.width * 0.2, clientY: y }] });
+  await canvas.dispatchEvent('touchmove', { touches: [{ identifier: 1, clientX: box.x + box.width * 0.8, clientY: y }] });
+  await canvas.dispatchEvent('touchend', { changedTouches: [{ identifier: 1, clientX: box.x + box.width * 0.8, clientY: y }] });
+  await expect.poll(async () => Number(await page.locator('#score').textContent()), { timeout: 15_000 }).toBeGreaterThan(0);
+  expect(errors).toEqual([]);
 });
 
 test('unknown paths get the branded 404 page with a way back', async ({ page }) => {

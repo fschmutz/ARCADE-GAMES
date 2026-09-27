@@ -8,6 +8,7 @@ const GAMES = [
   { path: "/snake/", title: "Snake" },
   { path: "/pacman/", title: "Pac-Man" },
   { path: "/car/", title: "Course" },
+  { path: "/casse/", title: "Casse-briques" },
 ];
 
 /**
@@ -62,11 +63,11 @@ function settled(page, id, frames = 12) {
 }
 
 test.describe("home page", () => {
-  test("lists the three games and carries the credit", async ({ page }) => {
+  test("lists the four games and carries the credit", async ({ page }) => {
     const errors = watchErrors(page);
     await page.goto("/");
     await expect(page).toHaveTitle("Arcade");
-    await expect(page.locator(".game-card")).toHaveCount(3);
+    await expect(page.locator(".game-card")).toHaveCount(4);
     await expect(page.locator(".credit")).toHaveText(CREDIT);
 
     for (const game of GAMES) {
@@ -346,5 +347,87 @@ test.describe("Course", () => {
     expect(await readNumber(page, "best")).toBeGreaterThan(0);
     await page.keyboard.press("4");
     await expect(page.locator("#levels button.active")).toHaveText("Extrême");
+  });
+});
+
+test.describe("Casse-briques", () => {
+  test("the ball waits on the paddle until Space launches it", async ({
+    page,
+  }) => {
+    const errors = watchErrors(page);
+    await page.goto("/casse/");
+    await expect(page.locator("#lives-label")).toHaveText("Vies");
+    await expect(page.locator("#lives")).toHaveText("3");
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#board")).toHaveAttribute(
+      "data-state",
+      "running",
+    );
+    expect(await settled(page, "score"), "no brick can break yet").toBe(0);
+    await page.keyboard.press(" ");
+    await expect
+      .poll(() => readNumber(page, "score"), { timeout: 15_000 })
+      .toBeGreaterThan(0);
+    expect(errors).toEqual([]);
+  });
+
+  test("a second Space pauses the rally, a third resumes it", async ({
+    page,
+  }) => {
+    await page.goto("/casse/");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press(" ");
+    await page.keyboard.press(" ");
+    await expect(page.locator("#ov-title")).toHaveText("Pause");
+    await page.keyboard.press(" ");
+    await expect(page.locator("#overlay")).toBeHidden();
+    await expect(page.locator("#board")).toHaveAttribute(
+      "data-state",
+      "running",
+    );
+  });
+
+  test("a missed ball costs a life, and the speed is locked while playing", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await page.goto("/casse/");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press(" ");
+    await page.keyboard.press("3");
+    await expect(page.locator("#levels button.active")).toHaveText("Normal");
+    // The ball leaves the centre, so a paddle parked on the left wall cannot catch it.
+    await page.keyboard.down("ArrowLeft");
+    await expect(page.locator("#lives")).toHaveText("2", { timeout: 45_000 });
+    await page.keyboard.up("ArrowLeft");
+  });
+
+  test("chrono mode counts down from 2:00 instead of lives", async ({
+    page,
+  }) => {
+    const errors = watchErrors(page);
+    await page.goto("/casse/");
+    await page.locator("#modes button", { hasText: "Chrono 2 min" }).click();
+    await expect(page.locator("#lives-label")).toHaveText("Temps");
+    await expect(page.locator("#lives")).toHaveText("2:00");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press(" ");
+    await expect(page.locator("#lives")).toHaveText(/^1:5\d$/, {
+      timeout: 15_000,
+    });
+    expect(errors).toEqual([]);
+  });
+
+  test("powers mode plays the same wall and scores", async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto("/casse/");
+    await page.locator("#modes button", { hasText: "Pouvoirs" }).click();
+    await page.keyboard.press("Enter");
+    await page.keyboard.press(" ");
+    await expect
+      .poll(() => readNumber(page, "score"), { timeout: 15_000 })
+      .toBeGreaterThan(0);
+    await expect(page.locator("#level")).toHaveText("1");
+    expect(errors).toEqual([]);
   });
 });

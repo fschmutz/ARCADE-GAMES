@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
-  <meta name="description" content="Snake, Pac-Man et Course : trois jeux d'arcade à jouer dans le navigateur, sur ordinateur ou mobile, même hors ligne.">
+  <meta name="description" content="Snake, Pac-Man, Course et Casse-briques : quatre jeux d'arcade à jouer dans le navigateur, sur ordinateur ou mobile, même hors ligne.">
   <link rel="canonical" href="https://fschmutz.github.io/ARCADE-GAMES/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Arcade">
   <meta property="og:locale" content="fr_FR">
-  <meta property="og:title" content="Arcade : Snake, Pac-Man et Course">
-  <meta property="og:description" content="Trois jeux d'arcade à jouer dans le navigateur, sur ordinateur ou mobile, même hors ligne.">
+  <meta property="og:title" content="Arcade : Snake, Pac-Man, Course et Casse-briques">
+  <meta property="og:description" content="Quatre jeux d'arcade à jouer dans le navigateur, sur ordinateur ou mobile, même hors ligne.">
   <meta property="og:url" content="https://fschmutz.github.io/ARCADE-GAMES/">
   <meta property="og:image" content="https://fschmutz.github.io/ARCADE-GAMES/assets/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Arcade : Snake, Pac-Man et Course">
+  <meta property="og:image:alt" content="Arcade : Snake, Pac-Man, Course et Casse-briques">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">
     {
@@ -25,7 +25,7 @@
       "name": "Arcade",
       "url": "https://fschmutz.github.io/ARCADE-GAMES/",
       "inLanguage": "fr",
-      "description": "Snake, Pac-Man et Course : trois jeux d'arcade à jouer dans le navigateur."
+      "description": "Snake, Pac-Man, Course et Casse-briques : quatre jeux d'arcade à jouer dans le navigateur."
     }
   </script>
   <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
@@ -46,7 +46,7 @@
     </button>
   </header>
 
-  <p class="intro">Trois jeux d'arcade, au clavier ou au doigt. Choisis ton jeu.</p>
+  <p class="intro">Quatre jeux d'arcade, au clavier ou au doigt. Choisis ton jeu.</p>
 
   <main class="games">
     <a class="card game-card" href="snake/">
@@ -94,6 +94,35 @@
       </svg>
       <h2>Course</h2>
       <p>Frôle les voitures et les camions pour enchaîner les combos, lance la nitro. Autoroute, double sens, défi du jour.</p>
+      <span class="play">Jouer →</span>
+    </a>
+
+    <a class="card game-card" href="casse/">
+      <svg viewBox="0 0 240 150" aria-hidden="true">
+        <rect width="240" height="150" fill="#0f172a"/>
+        <g>
+          <rect x="18" y="20" width="32" height="12" rx="2" fill="#ef4444"/>
+          <rect x="52" y="20" width="32" height="12" rx="2" fill="#ef4444"/>
+          <rect x="86" y="20" width="32" height="12" rx="2" fill="#ef4444"/>
+          <rect x="120" y="20" width="32" height="12" rx="2" fill="#ef4444"/>
+          <rect x="154" y="20" width="32" height="12" rx="2" fill="#ef4444"/>
+          <rect x="188" y="20" width="32" height="12" rx="2" fill="#ef4444"/>
+          <rect x="18" y="36" width="32" height="12" rx="2" fill="#f97316"/>
+          <rect x="52" y="36" width="32" height="12" rx="2" fill="#f97316"/>
+          <rect x="120" y="36" width="32" height="12" rx="2" fill="#f97316"/>
+          <rect x="154" y="36" width="32" height="12" rx="2" fill="#f97316"/>
+          <rect x="188" y="36" width="32" height="12" rx="2" fill="#f97316"/>
+          <rect x="18" y="52" width="32" height="12" rx="2" fill="#22c55e"/>
+          <rect x="52" y="52" width="32" height="12" rx="2" fill="#22c55e"/>
+          <rect x="86" y="52" width="32" height="12" rx="2" fill="#22c55e"/>
+          <rect x="120" y="52" width="32" height="12" rx="2" fill="#22c55e"/>
+          <rect x="188" y="52" width="32" height="12" rx="2" fill="#22c55e"/>
+        </g>
+        <circle cx="103" cy="92" r="7" fill="#f8fafc"/>
+        <rect x="88" y="120" width="64" height="9" rx="4.5" fill="#6366f1"/>
+      </svg>
+      <h2>Casse-briques</h2>
+      <p>Renvoie la balle, détruis les murs de briques, enchaîne les combos. Modes Classique, Chrono 2 min et Pouvoirs.</p>
       <span class="play">Jouer →</span>
     </a>
   </main>
