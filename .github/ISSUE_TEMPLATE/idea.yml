@@ -6,7 +6,7 @@ body:
     id: game
     attributes:
       label: For
-      options: [Snake, Pac-Man, Course, A new game, The site]
+      options: [Snake, Pac-Man, Course, Casse-briques, A new game, The site]
     validations:
       required: true
   - type: textarea

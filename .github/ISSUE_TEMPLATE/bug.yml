@@ -6,7 +6,7 @@ body:
     id: game
     attributes:
       label: Where
-      options: [Home page, Snake, Pac-Man, Course, Everywhere]
+      options: [Home page, Snake, Pac-Man, Course, Casse-briques, Everywhere]
     validations:
       required: true
   - type: textarea
