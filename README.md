@@ -1,12 +1,13 @@
 # Arcade
 
-Three browser games, playable on desktop and mobile, even offline:
+Four browser games, playable on desktop and mobile, even offline:
 
 | Game | What you do | Modes |
 |---|---|---|
 | **Snake** | Eat the apples, grab the golden apple (3 points, blinks out after 6 s), never bite your tail. | Classic, Zen (walls wrap, nothing kills you), Portals (two teleporting pairs). 1, 3 or 5 apples. Four speeds. |
 | **Pac-Man** | Clear the maze while four ghosts hunt you, each with its own arcade chase logic. Bonus fruit twice a level (cherry 100 up to key 5000), ghosts 200 / 400 / 800 / 1600 in a row, arcade cornering (press the turn early to cut the corner). | Classic (3 lives, extra life at 10 000), Chrono 3 min (each catch costs 10 s). |
 | **Course** | Weave through cars, vans and trucks, some of which change lanes. Near misses score and chain into a combo multiplier; nitro recharges on its own. | Highway, Two-way (oncoming lanes, wrong-way bonus), Daily challenge (same traffic for everyone that day). Four speeds. |
+| **Casse-briques** | Breakout. Where the ball lands on the paddle sets the angle it leaves at. Six walls, purple bricks take two hits and steel ones three, and the walls come back tougher; bricks broken before the ball touches the paddle again pay up to four times face value. | Classic (3 lives), Chrono 2 min (each lost ball costs 10 s), Powers (falling capsules: wider paddle, multi-ball, slower ball). Four ball speeds. |
 
 **Play:** https://fschmutz.github.io/ARCADE-GAMES/
 
@@ -16,8 +17,9 @@ The in-game text is in French. Best scores are kept in the browser per game, mod
 
 | | Keyboard | Touch |
 |---|---|---|
-| Move | Arrow keys, or `Z` `Q` `S` `D` (AZERTY) / `W` `A` `S` `D` | Swipe (Snake, Pac-Man), hold left or right half of the road (Course) |
+| Move | Arrow keys, or `Z` `Q` `S` `D` (AZERTY) / `W` `A` `S` `D` | Swipe (Snake, Pac-Man), hold left or right half of the road (Course), drag the paddle (Casse-briques) |
 | Nitro (Course) | `F` or `N`, hold | Hold the Nitro button |
+| Launch the ball (Casse-briques) | `Space` | Touch the board |
 | Pause | `Space` | |
 | End run (Snake) | `Escape` | |
 | Start / replay | `Enter` | Tap the button |

@@ -2,7 +2,7 @@
   "name": "arcade-games",
   "version": "1.0.0",
   "private": true,
-  "description": "Snake, Pac-Man and a car racing game, playable in the browser. Zero runtime dependencies.",
+  "description": "Snake, Pac-Man, a car racing game and Breakout, playable in the browser. Zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
   "engines": {
