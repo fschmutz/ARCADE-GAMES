@@ -8,7 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 const SITE = resolve(import.meta.dirname, '..', '..', 'site');
 const BASE = 'https://fschmutz.github.io/ARCADE-GAMES/';
 const CREDIT = 'Lino from Marrakech';
-const INDEXABLE = ['', 'snake/', 'pacman/', 'car/'];
+const INDEXABLE = ['', 'snake/', 'pacman/', 'car/', 'casse/'];
 
 /** @param {string} rel */
 const read = rel => readFileSync(join(SITE, rel), 'utf8');

@@ -3,7 +3,7 @@
 
 // Network first so a deploy is visible on the next load; the cache only serves when offline.
 const worker = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
-const CACHE = 'arcade-v3';
+const CACHE = 'arcade-v4';
 const PRECACHE = [
   './',
   './manifest.webmanifest',
@@ -17,6 +17,7 @@ const PRECACHE = [
   './assets/icons/snake.svg',
   './assets/icons/pacman.svg',
   './assets/icons/car.svg',
+  './assets/icons/casse.svg',
   './snake/',
   './snake/snake.js',
   './snake/rules.js',
@@ -26,6 +27,9 @@ const PRECACHE = [
   './car/',
   './car/car.js',
   './car/rules.js',
+  './casse/',
+  './casse/casse.js',
+  './casse/rules.js',
 ];
 
 worker.addEventListener('install', event => {
