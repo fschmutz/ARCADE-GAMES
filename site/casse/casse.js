@@ -407,7 +407,8 @@ function update(dt) {
     }
     balls = alive;
     if (balls.length === 0) {
-      loseLife();
+      // Clearing the wall with the last ball on its way out still counts as cleared.
+      if (state === 'running') loseLife();
       return;
     }
     for (const ball of lost) lostBall(ball);
