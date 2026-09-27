@@ -135,6 +135,7 @@ html.dark .seg button + button { border-left-color: #334155; }
 .screen-snake { width: min(92vw, 520px, calc(100dvh - 300px)); aspect-ratio: 1 / 1; }
 .screen-pacman { width: min(92vw, 560px, calc((100dvh - 230px) * 28 / 31)); aspect-ratio: 28 / 31; }
 .screen-car { width: min(92vw, 420px, calc((100dvh - 290px) * 420 / 640)); aspect-ratio: 420 / 640; }
+.screen-casse { width: min(92vw, 440px, calc(100dvh - 300px)); aspect-ratio: 1 / 1; }
 
 .overlay {
   position: absolute;
@@ -243,11 +244,20 @@ html.dark kbd { border-color: #334155; }
 
 /* Home page */
 .intro { margin: 0; color: #64748b; font-size: 0.95rem; text-align: center; }
+/* One column on a phone, 2 x 2 from tablet width, four across on a wide screen, so the
+   four cards always fill their last row. */
 .games {
   width: min(92vw, 780px);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
+}
+@media (min-width: 560px) {
+  .games { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1180px) {
+  .games { width: min(92vw, 1180px); grid-template-columns: repeat(4, 1fr); }
+  .bar-home { --bar-width: 1180px; }
 }
 .game-card {
   display: flex;
