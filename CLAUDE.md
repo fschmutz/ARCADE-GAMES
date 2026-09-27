@@ -5,9 +5,10 @@ Guidance for AI assistants working in this repository. Human contributors: see
 
 ## What this is
 
-Three browser games (Snake, Pac-Man, a car racing game called Course) deployed to
-GitHub Pages at https://fschmutz.github.io/ARCADE-GAMES/. Plain HTML, CSS and native ES
-modules: no framework, no runtime dependency, no build step. `site/` is the deployed tree.
+Four browser games (Snake, Pac-Man, a car racing game called Course, and a Breakout called
+Casse-briques) deployed to GitHub Pages at https://fschmutz.github.io/ARCADE-GAMES/. Plain
+HTML, CSS and native ES modules: no framework, no runtime dependency, no build step.
+`site/` is the deployed tree.
 
 ## Layout
 
