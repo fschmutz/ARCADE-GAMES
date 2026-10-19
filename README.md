@@ -44,6 +44,9 @@ Every pull request and every push to `main` runs, and branch protection requires
 |---|---|
 | Lint, typecheck, end-to-end | Supply chain (every action SHA-pinned to its latest release, every dependency at its latest version unless declared in `.dependency-holds.json`), `npm audit`, oxlint, strict TypeScript, unit tests, the page contract (metadata, CSP, links, sitemap, offline cache list), gameplay on desktop Chrome |
 | E2E matrix | Gameplay on desktop WebKit (Safari engine), then layout and touch controls on a Pixel 7, iPhone 15, iPhone SE and iPad: every page fits the screen, no sideways scroll, a tap starts each game |
+| attribution guard | Every commit of the pull request is authored and committed by an identity listed in [`.github/attribution-allow.txt`](.github/attribution-allow.txt), and no author name, commit message, pull request title or body carries a co-author trailer or the signature of an AI coding tool |
+
+The guard is `scripts/attribution-guard.sh`; `scripts/tests/attribution-guard-test.sh` tests it and runs inside the first gate too. Lift a false positive by narrowing the pattern, never by allow-listing a tool. It is a required check under its own name, so renaming the job drops it from branch protection.
 
 A green `main` deploys `site/` to GitHub Pages, then smoke-tests every sitemap URL and the 404 on the live site.
 
