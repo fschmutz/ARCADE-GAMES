@@ -1,0 +1,16 @@
+# Identities allowed to author or commit in this repository.
+#
+# One entry per line. A bare e-mail allows any display name using it; a full
+# "Name <mail>" entry allows that exact identity only. Comparison is case-insensitive,
+# "#" starts a comment.
+#
+# This list holds people and the bots this repository actually runs. An AI coding tool
+# never belongs here: scripts/attribution-guard.sh rejects tool signatures in names,
+# commit messages and pull request text whatever the e-mail says.
+
+# Maintainer.
+fschmutz@premaccess.com
+
+# Dependabot opens the action-SHA and dev-dependency bumps required by
+# scripts/check-latest.mjs, so it authors commits on this repository.
+49699333+dependabot[bot]@users.noreply.github.com
