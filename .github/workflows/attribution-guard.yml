@@ -1,72 +1,52 @@
-# Fails a pull request that claims authorship this repository does not own: a commit whose
-# author or committer is not in .github/attribution-allow.txt, or a name, commit message,
-# pull request title or body carrying a co-author trailer or an AI tool signature.
-#
-# The check is named "attribution guard"; branch protection has to require that context by
-# name, so renaming the job silently drops it from the required checks.
-#
-# Pull request text reaches the script through the environment and a file, never through the
-# shell: a title is attacker-controlled on a fork, and `run:` interpolation would execute it.
-#
-# Actions are SHA-pinned to the release named in the comment, like every other workflow here;
-# scripts/check-latest.mjs fails the build when a pin falls behind.
-name: Attribution guard
+name: attribution-guard
 
+# Bundle A — core. Always on.
+#
+# The author of record is the human who owns the change. This job fails a pull
+# request that carries somebody else's name: a commit authored or committed by
+# an address that is not on `.github/attribution-allow.txt`, a
+# `Co-authored-by:` trailer naming anyone else, an assistant footer in a commit
+# message, or one in the pull request body.
+#
+# It is a separate workflow rather than a job in `ci.yml` for one reason: the
+# body is editable after the fact. `ci.yml` runs on the default pull_request
+# types, which do not include `edited`, so a footer pasted into the description
+# ten minutes after the last push would never be looked at again.
+#
+# Everything it knows lives in `scripts/attribution-guard.sh`, which reads the
+# commits through the API and the body out of the event payload. The fixtures
+# run first: a guard that has quietly stopped matching is worse than no guard,
+# because the check is green either way.
+#
+# The job name, `attribution guard`, is in the ruleset example's required
+# status checks. Keep the two in step.
 on:
-  push:
-    branches: [main]
-  # "edited" is not a default type: without it the title and body are scanned once and can be
-  # rewritten afterwards, leaving the check green on text it never read.
   pull_request:
     types: [opened, synchronize, reopened, edited]
-  workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: attribution-guard-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   guard:
     name: attribution guard
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # The guard walks the commits the event added, so it needs their history.
-          fetch-depth: 0
           persist-credentials: false
 
-      - name: Guard tests
-        run: scripts/tests/attribution-guard-test.sh
+      - name: The guard still catches what it is for
+        run: ./scripts/tests/attribution-guard-test.sh
 
-      - name: Commits
+      # GH_TOKEN is the pull request's own read-only token: the script calls
+      # repos/:repo/pulls/:number/commits, and nothing else.
+      - name: This pull request carries no foreign attribution
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          set -euo pipefail
-          head="${HEAD_SHA:-$(git rev-parse HEAD)}"
-          # github.event.before is all zeroes on a branch's first push, and a force push can
-          # leave it unreachable; fall back to the pushed commit alone.
-          if [ -n "${BASE_SHA:-}" ] && git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
-            range="${BASE_SHA}..${head}"
-          else
-            range="${head}~1..${head}"
-          fi
-          echo "scanning $range"
-          scripts/attribution-guard.sh --range "$range"
-
-      - name: Pull request title and body
-        if: github.event_name == 'pull_request'
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          set -euo pipefail
-          printf '%s\n\n%s\n' "${PR_TITLE:-}" "${PR_BODY:-}" > "${RUNNER_TEMP}/pr.txt"
-          scripts/attribution-guard.sh --label 'pull request body' \
-            --text-file "${RUNNER_TEMP}/pr.txt"
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/attribution-guard.sh

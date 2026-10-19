@@ -1,3 +1,0 @@
-feat(snake): add the golden apple
-
-Co-authored-by: Someone Else <someone@example.com>

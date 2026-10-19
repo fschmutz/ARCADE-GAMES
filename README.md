@@ -44,9 +44,9 @@ Every pull request and every push to `main` runs, and branch protection requires
 |---|---|
 | Lint, typecheck, end-to-end | Supply chain (every action SHA-pinned to its latest release, every dependency at its latest version unless declared in `.dependency-holds.json`), `npm audit`, oxlint, strict TypeScript, unit tests, the page contract (metadata, CSP, links, sitemap, offline cache list), gameplay on desktop Chrome |
 | E2E matrix | Gameplay on desktop WebKit (Safari engine), then layout and touch controls on a Pixel 7, iPhone 15, iPhone SE and iPad: every page fits the screen, no sideways scroll, a tap starts each game |
-| attribution guard | Every commit of the pull request is authored and committed by an identity listed in [`.github/attribution-allow.txt`](.github/attribution-allow.txt), and no author name, commit message, pull request title or body carries a co-author trailer or the signature of an AI coding tool |
+| attribution guard | On pull requests: every commit is authored and committed by an address on [`.github/attribution-allow.txt`](.github/attribution-allow.txt) or by an allow-listed bot, no `Co-authored-by:` trailer names anyone else, and neither a commit message nor the pull request body carries an assistant footer |
 
-The guard is `scripts/attribution-guard.sh`; `scripts/tests/attribution-guard-test.sh` tests it and runs inside the first gate too. Lift a false positive by narrowing the pattern, never by allow-listing a tool. It is a required check under its own name, so renaming the job drops it from branch protection.
+`scripts/attribution-guard.sh` is copied byte for byte from the organisation template so every repository runs the same script: change it there and copy it again, do not fork it in place. `scripts/tests/attribution-guard-test.sh` holds the 17 fixtures it has to keep getting right and runs inside the first gate as well, because a guard that has quietly stopped matching is worse than no guard. Widening the allow list is a reviewed decision, never a step towards a green check. The check is required under its own name, so renaming the job drops it from branch protection.
 
 A green `main` deploys `site/` to GitHub Pages, then smoke-tests every sitemap URL and the 404 on the live site.
 

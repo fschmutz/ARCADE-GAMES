@@ -1,3 +1,0 @@
-feat(pacman): bonus fruit twice a level
-
-🤖 Generated with Claude Code

@@ -1,8 +1,0 @@
-# Allow list used by scripts/tests/attribution-guard-test.sh only.
-# Mirrors the two shapes .github/attribution-allow.txt supports.
-
-# Bare e-mail: any display name using it passes.
-lino@example.com
-
-# Full identity: this exact name and e-mail only.
-Release Bot <bot@example.com>

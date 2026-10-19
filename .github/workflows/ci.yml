@@ -48,8 +48,9 @@ jobs:
       - run: npm run typecheck
       - name: Unit tests and page contract
         run: npm run test:unit
-      # The "attribution guard" check scans the commits and the pull request text; this gate
-      # owns the script behind it, so a broken guard fails here instead of passing silently.
+      # The "attribution guard" check scans the commits and the pull request body; this gate
+      # owns the fixtures behind it, so a guard that has quietly stopped matching fails here
+      # instead of staying green on both checks.
       - name: Attribution guard tests
         run: scripts/tests/attribution-guard-test.sh
       - name: End-to-end, desktop Chrome
