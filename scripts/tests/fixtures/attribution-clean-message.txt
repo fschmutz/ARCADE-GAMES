@@ -1,6 +1,0 @@
-fix(casse): count the wall as cleared when the last ball goes out with it
-
-The wall was only checked after the ball bounced, so the run ended on a wall that
-had no brick left. Count the remaining bricks when the ball is lost as well.
-
-Also documents the CSS cursor the paddle uses, a word the guard must not flag.

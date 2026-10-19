@@ -1,16 +1,25 @@
-# Identities allowed to author or commit in this repository.
+# Who may appear as the author or committer of a commit in this repository,
+# and who may be named in a Co-authored-by: trailer.
 #
-# One entry per line. A bare e-mail allows any display name using it; a full
-# "Name <mail>" entry allows that exact identity only. Comparison is case-insensitive,
-# "#" starts a comment.
+# scripts/attribution-guard.sh reads this file and fails the pull request on
+# anything that is not listed. Widening it is a reviewed decision — see
+# CODEOWNERS — never a step on the way to a green check.
 #
-# This list holds people and the bots this repository actually runs. An AI coding tool
-# never belongs here: scripts/attribution-guard.sh rejects tool signatures in names,
-# commit messages and pull request text whatever the e-mail says.
+# One entry per line:
+#
+#   ADDRESS             allowed as author and as committer
+#   committer:ADDRESS   allowed as committer only
+#   bot:LOGIN           allowed as the GitHub account behind a commit
+#
+# Three entries are built into the script and need no line here:
+# committer:noreply@github.com (a merge made through the GitHub web UI), and
+# the dependabot[bot], github-actions[bot] and renovate[bot] logins.
 
-# Maintainer.
+# The only human who commits here.
 fschmutz@premaccess.com
 
-# Dependabot opens the action-SHA and dev-dependency bumps required by
-# scripts/check-latest.mjs, so it authors commits on this repository.
-49699333+dependabot[bot]@users.noreply.github.com
+# Dependabot opens the action-SHA and dev-dependency bumps that
+# scripts/check-latest.mjs demands, so it is the one non-human that authors
+# commits in this repository's history. The script allows the login already;
+# the line is here so the list reads as the whole answer to "who commits here".
+bot:dependabot[bot]
