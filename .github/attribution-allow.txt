@@ -10,10 +10,20 @@
 #   ADDRESS             allowed as author and as committer
 #   committer:ADDRESS   allowed as committer only
 #   bot:LOGIN           allowed as the GitHub account behind a commit
+#   name:FULL NAME      a person whose name would otherwise read as a tool
 #
 # Three entries are built into the script and need no line here:
 # committer:noreply@github.com (a merge made through the GitHub web UI), and
 # the dependabot[bot], github-actions[bot] and renovate[bot] logins.
+#
+# The name beside the address is checked separately, and an allow-listed
+# address does not excuse it: a commit authored by "Cursor Agent", "Claude" or
+# "AI assistant" fails whatever address it carries. A real person whose name
+# collides — a Jean-Claude, a Gemini — needs a `name:` line here, which is the
+# only way past that rule.
+#
+# Delete this file and the guard still runs: it warns, falls back to the
+# address built into the script, and keeps failing everybody else.
 
 # The only human who commits here.
 fschmutz@premaccess.com
