@@ -15,7 +15,10 @@ name: Attribution guard
 on:
   push:
     branches: [main]
+  # "edited" is not a default type: without it the title and body are scanned once and can be
+  # rewritten afterwards, leaving the check green on text it never read.
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
 
 permissions:
