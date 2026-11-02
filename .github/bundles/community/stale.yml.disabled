@@ -1,0 +1,73 @@
+name: stale
+
+# Bundle G — Public / community. OFF BY DEFAULT.
+#
+# This file does not run. It lives in .github/bundles/ and ends in .disabled,
+# so GitHub never sees it as a workflow. To enable:
+#
+#   git mv .github/bundles/community/stale.yml.disabled \
+#          .github/workflows/stale.yml
+#
+# A stale bot is a triage tool for repositories that have more issues than
+# attention. On a repository with two contributors it is not triage, it is a
+# machine closing the thing you meant to get to — and the reporter learns that
+# filing here is pointless. Enable it when the backlog is genuinely unreadable,
+# not when it is merely long.
+#
+# The settings below are deliberately patient: 90 days to go stale, 30 more
+# before it closes, and the clock resets on any comment. Pull requests are left
+# alone entirely — an old pull request is somebody's unmerged work, and closing
+# it does not make the decision go away.
+#
+# Anything labelled blocked, security, or pinned is exempt. Those are precisely
+# the issues that sit still for good reasons.
+#
+# Pinned SHAs here are frozen at the day this bundle was written — Dependabot
+# does not scan .github/bundles/. Re-resolve them when you enable it:
+#   gh api repos/actions/stale/git/ref/tags/vX.Y.Z --jq '.object.sha'
+on:
+  schedule:
+    # 04:00 UTC on Mondays. Weekly, not daily: a daily run produces a drip of
+    # notifications that trains everyone to ignore the bot.
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stale
+  cancel-in-progress: false
+
+jobs:
+  stale:
+    name: mark and close stale issues
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      # debug-only: true on the first run. It reports what it would touch
+      # without touching anything, which is the only honest way to find out
+      # whether your thresholds are right. Remove it once you agree with the
+      # list.
+      - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
+        with:
+          days-before-issue-stale: 90
+          days-before-issue-close: 30
+          days-before-pr-stale: -1    # never; an old PR is somebody's work
+          days-before-pr-close: -1
+          stale-issue-label: stale
+          exempt-issue-labels: "blocked,security,pinned"
+          remove-stale-when-updated: true
+          operations-per-run: 100
+          stale-issue-message: >
+            No activity here for 90 days. It will close in 30 more unless
+            something happens on it.
+
+
+            If this still matters, say so — a comment resets the clock. If it
+            is waiting on someone specific, name them; that is more useful than
+            keeping it open.
+          close-issue-message: >
+            Closing after 120 days without activity. Not a judgement on the
+            issue — reopen it or file a new one if it is still real.

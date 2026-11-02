@@ -1,0 +1,70 @@
+name: sbom
+
+# Bundle F — Release. OFF BY DEFAULT.
+#
+# This file does not run. It lives in .github/bundles/ and ends in .disabled,
+# so GitHub never sees it as a workflow. To enable:
+#
+#   git mv .github/bundles/release/sbom.yml.disabled \
+#          .github/workflows/sbom.yml
+#
+# A software bill of materials answers one question: what is actually inside the
+# thing we shipped. That question gets asked by a customer security
+# questionnaire, by a procurement review, and — the expensive one — during an
+# incident, when somebody needs to know within the hour whether the affected
+# version was in the build.
+#
+# Enable it on a repository that ships an artifact to somebody else. On a
+# repository with no dependency manifest it will cheerfully produce an SBOM of
+# nothing, which is worse than no SBOM because it looks like an answer.
+#
+# workflow_dispatch only as shipped. The release trigger below is commented out
+# so you can run it once and read the output before it starts attaching files to
+# releases. Attaching to a release also needs `contents: write`, which is a real
+# escalation over the rest of this template.
+#
+# Pinned SHAs here are frozen at the day this bundle was written — Dependabot
+# does not scan .github/bundles/. Re-resolve them when you enable it:
+#   gh api repos/anchore/sbom-action/git/ref/tags/vX.Y.Z --jq '.object.sha'
+#   gh api repos/anchore/sbom-action/git/tags/<sha>      --jq '.object.sha'
+on:
+  workflow_dispatch:
+  # Uncomment to attach an SBOM to every published release, and add
+  # `contents: write` to the job permissions below.
+  # release:
+  #   types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbom-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    name: generate SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # CycloneDX rather than SPDX: it is what most vendor questionnaires ask
+      # for, and `syft` produces either. Switch the format if yours asks for
+      # the other one — that is a one-word change, not a decision.
+      - name: Scan the tree with syft
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          format: cyclonedx-json
+          artifact-name: sbom.cyclonedx.json
+          output-file: sbom.cyclonedx.json
+          # Set to true, and add `contents: write` above, to attach the SBOM to
+          # the release that triggered this run.
+          upload-release-assets: false
+
+      - name: Keep the SBOM as a build artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sbom
+          path: sbom.cyclonedx.json
+          retention-days: 90
+          if-no-files-found: error

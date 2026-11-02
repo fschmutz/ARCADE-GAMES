@@ -1,0 +1,41 @@
+# Bundle G — Public / community. NOT ACTIVE.
+#
+# This is an example. Enable it only on a public repository:
+#
+#   git mv .github/bundles/community/llms.txt.example llms.txt
+#
+# llms.txt is a convention, not a standard and not a control. It is a hint at
+# the repository root telling a crawler or an assistant which documents matter
+# and in what order. Nothing enforces it, nothing checks it, and no model is
+# obliged to read it.
+#
+# Which is why this is a public-only file. On a private repository it protects
+# nothing (access control already did that) and it documents your layout to
+# whoever eventually gets the clone. It is also NOT a place to write
+# instructions for assistants working *in* the repository — that is AGENTS.md,
+# and it is already active.
+#
+# Replace REPO_NAME, the summary, and the URLs before enabling. Delete every
+# line of this comment block: the file is meant to be read, and a reader who
+# hits fifteen lines of caveats stops at line two.
+
+# REPO_NAME
+
+> One sentence saying what this repository is and who it is for. Written for
+> someone who arrived from a search result and has thirty seconds.
+
+This repository documents itself in its wiki. The pages below are the source of
+truth; anything else in the tree is implementation.
+
+## Docs
+
+- [README](https://github.com/OWNER/REPO/blob/main/README.md): what this is, and how to use it
+- [Getting Started](https://github.com/OWNER/REPO/wiki/Getting-Started): setup, end to end
+- [Architecture Decisions](https://github.com/OWNER/REPO/wiki/Architecture-Decisions): why it is shaped this way
+- [Contributing](https://github.com/OWNER/REPO/blob/main/CONTRIBUTING.md): branch, commit, and pull request conventions
+
+## Optional
+
+- [Changelog](https://github.com/OWNER/REPO/blob/main/CHANGELOG.md): what changed and when
+- [Security policy](https://github.com/OWNER/REPO/blob/main/SECURITY.md): reporting a vulnerability
+- [Support](https://github.com/OWNER/REPO/blob/main/SUPPORT.md): where to ask a question

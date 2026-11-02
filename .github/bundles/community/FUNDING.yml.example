@@ -1,0 +1,20 @@
+# Bundle G — Public / community. NOT ACTIVE.
+#
+# This is an example. GitHub only reads `.github/FUNDING.yml`, so nothing here
+# renders a Sponsor button. To enable:
+#
+#   git mv .github/bundles/community/FUNDING.yml.example .github/FUNDING.yml
+#
+# It is in the bundle mostly so the question has an answer. A ScaleMeNow
+# repository is commercial work, and a Sponsor button on it asks the public to
+# fund a company — which reads as confusion about what the repository is, not as
+# an invitation. Leave this off unless the repository is a genuinely
+# community-maintained open source project with its own maintainers.
+#
+# Uncomment only the lines you will actually use. An empty key is rendered as a
+# dead link, and a Sponsor button that goes nowhere is worse than no button.
+# Full syntax: https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+
+# github: [ORG_OR_USERNAME]
+# open_collective: COLLECTIVE_SLUG
+# custom: ["https://example.com/sponsor"]

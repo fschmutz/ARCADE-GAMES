@@ -1,0 +1,65 @@
+name: release-please
+
+# Bundle F — Release. OFF BY DEFAULT.
+#
+# This file does not run. It lives in .github/bundles/ and ends in .disabled,
+# so GitHub never sees it as a workflow. To enable:
+#
+#   git mv .github/bundles/release/release-please.yml.disabled \
+#          .github/workflows/release-please.yml
+#
+# Read .github/bundles/release/README.md first. Three things change the day this
+# becomes active, and none of them is reversible by deleting the file again:
+#
+#   1. CHANGELOG.md becomes generated output. The hand-written Keep a Changelog
+#      file this template ships is overwritten, and the Unreleased section stops
+#      being the place anyone writes things down.
+#   2. Conventional commits stop being a convention and become an API. A
+#      mistyped `feat:` on a bug fix cuts a minor version and tags it.
+#   3. The token widens. Everything else in this template runs on
+#      `contents: read`; this needs write on contents and on pull requests.
+#
+# Also worth knowing before you are surprised by it: a pull request opened with
+# GITHUB_TOKEN does not trigger other workflows, so the release pull request
+# arrives with no CI on it. Fixing that needs a PAT or a GitHub App token —
+# a secret to own, scope, and rotate. Decide that before you enable this, not
+# after the first release pull request sits there unchecked.
+#
+# The trigger below is workflow_dispatch only, deliberately. Run it by hand a
+# few times and look at the release pull request it proposes before you
+# uncomment the push trigger and let it watch main.
+#
+# Pinned SHAs here are frozen at the day this bundle was written — Dependabot
+# does not scan .github/bundles/. Re-resolve them when you enable it:
+#   gh api repos/googleapis/release-please-action/git/ref/tags/vX.Y.Z --jq '.object.sha'
+on:
+  workflow_dispatch:
+  # Uncomment once you have watched a manual run and agree with what it does.
+  # push:
+  #   branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: release pull request
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # create the tag and the GitHub release
+      pull-requests: write   # open and update the release pull request
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          # "simple" versions the repository itself and maintains CHANGELOG.md
+          # without needing a language manifest. Change it to node, python, go,
+          # or rust once the repository has one, so the version lands in the
+          # manifest too.
+          release-type: simple
+          # Swap for a PAT or GitHub App token if the release pull request has
+          # to run CI. See the README in this directory.
+          token: ${{ secrets.GITHUB_TOKEN }}

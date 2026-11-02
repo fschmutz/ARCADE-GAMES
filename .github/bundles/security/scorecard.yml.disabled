@@ -1,0 +1,101 @@
+name: scorecard
+
+# ============================================================================
+# Bundle H — Heavy security. OFF BY DEFAULT.
+#
+#                    DO NOT ADD A `push` OR `schedule` TRIGGER
+#                            ON A PRIVATE REPOSITORY.
+#
+# Read this before you change the `on:` block below. It is the whole reason
+# this file ships disabled.
+#
+# OpenSSF Scorecard runs ~20 probes against the repository. On a public repo it
+# is effectively free: free runners, cached results from the public Scorecard
+# API, and a badge that drops when someone weakens a setting.
+#
+# On a PRIVATE repository every minute is billed, and the private path is the
+# slow one — several probes fall back to repeated API calls instead of the
+# public cache. Wired to `push`, on a repository with normal commit traffic,
+# this becomes one of the largest lines on the Actions bill, in exchange for a
+# score that nobody outside the repository can even see.
+#
+# This is the BAM-PROD-ENGINE lesson written into a single file: a workflow
+# sized for a platform, billed against a repository that has nothing to build.
+#
+# The correct usage is a manual audit. Run it when you want the report — after
+# a settings change, before a security review, once a quarter. Read the
+# findings, fix them, and go back to not running it. A quarterly manual run
+# tells you what a nightly run would, at roughly one four-hundredth of the
+# cost.
+#
+# ============================================================================
+#
+# This file does not run. It lives in .github/bundles/ and ends in .disabled,
+# so GitHub never sees it as a workflow. To enable:
+#
+#   git mv .github/bundles/security/scorecard.yml.disabled \
+#          .github/workflows/scorecard.yml
+#
+# Expect a mediocre score on a private operator repository, and expect most of
+# it to be correct decisions rather than problems — no releases, no application
+# code, a branch-protection probe that cannot read rulesets without an admin
+# token. See .github/bundles/security/README.md for which findings are real.
+#
+# Pinned SHAs here are frozen at the day this bundle was written — Dependabot
+# does not scan .github/bundles/. Re-resolve them when you enable it:
+#   gh api repos/ossf/scorecard-action/git/ref/tags/vX.Y.Z --jq '.object.sha'
+#   gh api repos/ossf/scorecard-action/git/tags/<sha>      --jq '.object.sha'
+on:
+  workflow_dispatch:
+  # Nothing else. Not `push`, not `schedule`. See the block above. If this
+  # repository is genuinely the exception, record why in wiki/ADR/ first.
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scorecard
+  cancel-in-progress: false
+
+jobs:
+  analysis:
+    name: scorecard audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write        # OIDC, for the probes that need a verified identity
+      # security-events: write   # uncomment only with SARIF upload enabled below
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run the Scorecard probes
+        uses: ossf/scorecard-action@fa7117db83c52d787ae5a89f350999701505d78e # v2.5.0
+        with:
+          results_file: scorecard.sarif
+          results_format: sarif
+          # publish_results MUST stay false on a private repository. True
+          # sends the score to the public OpenSSF API, which is a disclosure
+          # decision, not a reporting one.
+          publish_results: false
+
+      # The artifact is the reliable output. Reading it costs nothing and needs
+      # no extra permission.
+      - name: Keep the report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: scorecard-results
+          path: scorecard.sarif
+          retention-days: 30
+          if-no-files-found: error
+
+      # Optional: surface the findings in the Security tab instead of an
+      # artifact. Needs `security-events: write` above, and on a private
+      # repository it needs GitHub Advanced Security — without it the upload
+      # fails and takes the job down with it.
+      #
+      # - name: Upload to code scanning
+      #   uses: github/codeql-action/upload-sarif@<full-commit-sha> # vX.Y.Z
+      #   with:
+      #     sarif_file: scorecard.sarif
