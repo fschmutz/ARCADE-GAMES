@@ -1,0 +1,95 @@
+name: dependency-review
+
+# Bundle C — supply chain. Default on.
+#
+# Blocks a pull request that introduces a dependency with a known high or
+# critical advisory, before it reaches main rather than after a scanner finds it
+# in a release.
+#
+# Two deliberate pieces of restraint, both of which exist to keep this workflow
+# from being the job that is permanently red on a repository that does not need
+# it yet:
+#
+#   1. The paths filter. A repository made from this template has no dependency
+#      manifest at all, so this workflow never runs on it. It starts running by
+#      itself the day the repository gains a package.json, a requirements.txt,
+#      or any of the other manifests below. Add yours if it is missing.
+#
+#   2. The preflight probe. The dependency review API needs the dependency graph,
+#      and on a *private* repository that means GitHub Advanced Security. Without
+#      it the action fails with an API error that looks like a broken workflow.
+#      The probe turns that into a skip and a notice.
+#
+# Because of the paths filter this job does not report on every pull request, so
+# do not add it to required_status_checks — a required check that never reports
+# blocks every pull request permanently. See wiki/Bundles.md.
+#
+# To remove this bundle: delete this file.
+on:
+  pull_request:
+    paths:
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/pnpm-lock.yaml"
+      - "**/yarn.lock"
+      - "**/requirements*.txt"
+      - "**/pyproject.toml"
+      - "**/poetry.lock"
+      - "**/uv.lock"
+      - "**/go.mod"
+      - "**/go.sum"
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+      - "**/Gemfile.lock"
+      - "**/composer.lock"
+      - "**/*.csproj"
+      - "**/pom.xml"
+      - "**/build.gradle*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: dependency review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Ask the API the same question the action asks. A 403 here means the
+      # dependency graph is off, or this is a private repository without GitHub
+      # Advanced Security — neither is a reason to fail the pull request.
+      - name: Is dependency review available on this repository?
+        id: probe
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -uo pipefail
+          if gh api "repos/${GITHUB_REPOSITORY}/dependency-graph/compare/${BASE_SHA}...${HEAD_SHA}" \
+               --silent >/dev/null 2>&1; then
+            echo "available=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "available=false" >> "${GITHUB_OUTPUT}"
+            echo "::notice title=Dependency review skipped::The dependency graph is not available on this repository. Enable Settings → Advanced Security → Dependency graph; a private repository also needs GitHub Advanced Security."
+          fi
+
+      # fail-on-severity: high — moderate advisories in a private operator repo
+      # produce more noise than they prevent. Lower it to "moderate" on a repo
+      # that ships an artifact to someone else.
+      - name: Review the dependency change
+        if: steps.probe.outputs.available == 'true'
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          # Set comment-summary-in-pr: on-failure to get the findings as a pull
+          # request comment. It needs `pull-requests: write` above, so it is off
+          # by default rather than quietly widening the token.
+          comment-summary-in-pr: never
