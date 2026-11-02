@@ -1,0 +1,22 @@
+# Minimal gitleaks configuration for a ScaleMeNow repository.
+#
+#   gitleaks dir --config .github/gitleaks.toml .
+#
+# The upstream default rule set is inherited wholesale — do not restate it here,
+# because a hand-copied rule set silently stops receiving new detectors.
+#
+# There is deliberately no allowlist. gitleaks rejects an allowlist block that
+# declares no checks, so an empty one is not a valid placeholder: add the block
+# only when you have a real entry for it. Every entry is a class of secret this
+# repository has agreed to stop detecting, so say what the value is and why it is
+# safe. "It is a committed test fixture" is a reason; "CI was red" is not.
+#
+#   [[allowlists]]
+#   description = "Fixture token in the test suite; rotated out of every account."
+#   paths = ['''^tests/fixtures/.*\.json$''']
+#   regexes = ['''EXAMPLE-NOT-A-REAL-SECRET''']
+
+title = "ScaleMeNow gitleaks configuration"
+
+[extend]
+useDefault = true

@@ -1,0 +1,61 @@
+# Lean on purpose: secrets and workflow syntax are the two things a repository
+# cannot self-correct after the fact. Language-specific linters (ruff, eslint)
+# belong here too, but only once the repo actually has that language in it.
+#
+#   pipx install pre-commit && pre-commit install
+#   pre-commit run --all-files
+minimum_pre_commit_version: "3.0.0"
+
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: 83d9cd684c87d95d656c1458ef04895a7f1cbd8e  # frozen: v8.30.1
+    hooks:
+      - id: gitleaks
+        # Hard gate. A finding is the bug — never relax this to land a change.
+        args: ["--config", ".github/gitleaks.toml"]
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca  # frozen: v1.7.12
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: check-merge-conflict
+      - id: check-json
+        # JSONC by design: these tools document their config with comments.
+        # Excluded by name so a repository that has them keeps this file as
+        # shipped; the tool that reads each file is its parser and its gate.
+        exclude: (^|/)(\.oxlintrc|tsconfig[^/]*|jsconfig|devcontainer|\.vscode/[^/]+)\.json$
+      - id: check-yaml
+        # Syntax only, so CloudFormation and SAM short-form tags (!Ref, !Sub,
+        # !GetAtt) parse instead of failing as unknown tags. A per-file exclude
+        # would skip the template outright and would need a different path in
+        # every repository; cfn-lint / sam validate gate the semantics.
+        args: [--unsafe]
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+
+  # Screenshots are mandatory (ADR-0002). Same script as the `screenshots` CI
+  # job; it reads the whole tree, so it runs on every commit, not per file.
+  - repo: local
+    hooks:
+      - id: check-screenshots
+        name: screenshots
+        entry: scripts/check-screenshots.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+      # One doc surface (ADR-0002): same script as the CI step; reads git ls-files.
+      - id: check-doc-surface
+        name: doc surface
+        entry: scripts/check-doc-surface.sh
+        language: script
+        pass_filenames: false
+        always_run: true

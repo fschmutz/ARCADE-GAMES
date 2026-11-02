@@ -1,4 +1,99 @@
+# --- Secrets and local configuration -----------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+# AWS CLI state, not the whole directory: pipeline repositories track
+# .aws/run.sh (the generator entry point) and must not lose it to a copy.
+.aws/credentials
+.aws/config
+.aws/sso/
+.aws/cli/
+.netrc
+secrets.y*ml
+credentials.json
+*.tfvars
+!*.tfvars.example
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# --- Operating system ---------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# --- Editors and tooling ------------------------------------------------------
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.history/
+.fleet/
+
+# --- Node ---------------------------------------------------------------------
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.npm/
+.yarn/cache
+.yarn/install-state.gz
+dist/
+build/
+coverage/
+.next/
+.nuxt/
+.turbo/
+.cache/
+*.tsbuildinfo
+.eslintcache
+
+# --- Python -------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+*.log
+
+# --- Scratch ------------------------------------------------------------------
+tmp/
+.tmp/
+*.bak
+*.orig
+*.rej
+
+# --- This repository ----------------------------------------------------------
+# Playwright output from `npm run test:e2e`.
 test-results/
 playwright-report/
-.DS_Store

@@ -16,6 +16,22 @@ updates:
       actions:
         patterns: ['*']
 
+  # pre-commit freezes its hook repos to a commit SHA (`# frozen: vX`). Without this the
+  # secret scanner and the workflow linter stay at whatever version they were added at.
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '05:00'
+      timezone: Europe/Paris
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    groups:
+      pre-commit:
+        patterns: ['*']
+
   # Dev tooling only: nothing from npm ships to the browser.
   - package-ecosystem: npm
     directory: /
