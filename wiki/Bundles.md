@@ -11,8 +11,8 @@ switched off.
 A template has two ways to fail. It can ship too little, and every repository
 reinvents release automation by hand, differently. Or it can ship everything
 active, and a repository that has nothing to build inherits a production
-platform's CI bill on its first day — the BAM-PROD-ENGINE failure, eighteen-plus
-workflows sized for something else entirely.
+platform's CI bill on its first day: dozens of workflows sized for something
+else entirely.
 
 So everything is here, grouped into named bundles, each with a declared default:
 
@@ -277,8 +277,8 @@ score to the public OpenSSF API, which is a disclosure decision.
 Documentation only; there is nothing in the tree to switch on.
 
 The bundles duplicate workflow logic across every repository that enables them.
-The estate-level answer is a `ScaleMeNow/smn-actions` repository of reusable
-workflows, called with `uses: ScaleMeNow/smn-actions/.github/workflows/<name>.yml@<sha>`,
+The estate-level answer is one repository of reusable workflows, called with
+`uses: OWNER/ACTIONS-REPO/.github/workflows/<name>.yml@<sha>`,
 so a fix lands once instead of once per clone.
 
 It does not exist yet, and this template does not create it. A shared workflow

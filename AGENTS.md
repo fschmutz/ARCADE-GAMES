@@ -81,8 +81,8 @@ is a placeholder; a plausible-looking key is a liability even when it is invalid
 House doctrine, platform runbooks, and the production CI estate live in the
 repositories that own them. Link to them.
 
-- Do not copy the BAM-PROD-ENGINE workflow estate into a repository made from
-  this template. It is sized for a production platform and bills runner minutes
+- Do not copy a production platform's workflow estate into a repository made
+  from this template. It is sized for a production platform and bills runner minutes
   on a repo that has nothing to build yet.
 - Do not copy customer trees, customer configuration, or customer names into
   this repository or into anything generated from it.

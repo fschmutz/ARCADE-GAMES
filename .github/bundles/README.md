@@ -16,8 +16,8 @@ is missing one of those suffixes, so a bundle cannot be switched on by accident
 ## Why ship files that do not run
 
 Because the alternative is worse in both directions. Shipping all of this active
-gives every new repository a production platform's CI bill on day one, which is
-the BAM-PROD-ENGINE lesson. Shipping none of it means the next repository
+gives every new repository a production platform's CI bill on day one. Shipping
+none of it means the next repository
 reinvents release automation by hand, differently, with a different pin and a
 different set of permissions.
 

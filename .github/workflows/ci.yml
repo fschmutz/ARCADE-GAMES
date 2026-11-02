@@ -269,6 +269,18 @@ jobs:
           done < <(git ls-files -- 'scripts/*.sh')
           exit "${bad}"
 
+      # Every file here is copied into other repositories, public ones included.
+      # Internal repository names belong in the repositories that own them;
+      # CHANGELOG.md is the template's own history and stays as written.
+      - name: Shipped files name no internal repository
+        run: |
+          set -euo pipefail
+          if git ls-files -z -- . ':!:CHANGELOG.md' |
+            xargs -0 grep -nE 'BAM-[A-Z]+-[A-Z]|smn[-]actions' ; then
+            echo "::error::internal repository names above; describe the case instead of naming it"
+            exit 1
+          fi
+
       # Relative links in the repository's markdown outside wiki/ (wiki pages
       # link by page name, which only the wiki resolves) must point at a file.
       # A link that climbs out of the repository (../../issues/new from the

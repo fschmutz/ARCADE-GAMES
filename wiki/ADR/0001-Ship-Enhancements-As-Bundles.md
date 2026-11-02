@@ -15,9 +15,8 @@ tooling, community files, OpenSSF Scorecard.
 
 Shipping all of it flat would have made every repository created from the
 template inherit every one of them. That is the failure mode the template was
-written to avoid, and it has a name in this estate: BAM-PROD-ENGINE, eighteen
-workflows sized for a production platform, billing runner minutes on repositories
-that have nothing to build.
+written to avoid: dozens of workflows sized for a production platform, billing
+runner minutes on repositories that have nothing to build.
 
 The opposite failure is just as real. Anything not shipped is not written down,
 and the next repository reinvents it by hand, differently.
@@ -66,7 +65,7 @@ documentation only.
   different set of permissions.
 - **A second repository of optional templates.** Rejected for now: it needs its
   own ownership, CI, and release path, and the estate does not have the volume
-  to pay for that yet. Revisit alongside `smn-actions` (Bundle I).
+  to pay for that yet. Revisit alongside the shared workflows repository (Bundle I).
 - **A generator script that asks which bundles you want.** Rejected: a script
   that writes workflow files is a thing to maintain and to trust, and `git rm`
   plus a rename is already the whole interface.

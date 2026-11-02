@@ -36,7 +36,7 @@ in a suggestion window.
   else under `docs/`.
 - Activate anything under `.github/bundles/`. Those files end in `.disabled` or
   `.example` deliberately — see [`wiki/Bundles.md`](../wiki/Bundles.md).
-- Copy the BAM-PROD-ENGINE CI estate, house doctrine, or customer trees into
+- Copy another repository's CI estate, house doctrine, or customer trees into
   this repository. Link to the repository that owns them instead.
 - Add a workflow when a job in `.github/workflows/ci.yml` would do.
 - Pin an action to a tag. Every `uses:` is a full commit SHA with a version

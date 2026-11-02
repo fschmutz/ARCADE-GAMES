@@ -20,8 +20,8 @@ On a **private** repository, every minute is billed, and the private-repo path
 is the expensive one: several probes need repeated API calls that the public
 path gets from a cache. Wire that to `push` on a busy repository and it becomes
 one of the larger lines on the Actions bill, producing a score nobody outside
-the repository can see. That is the BAM-PROD-ENGINE lesson restated: workflows
-sized for a platform, billed against a repository that has nothing to build.
+the repository can see: a workflow sized for a platform, billed against a
+repository that has nothing to build.
 
 So: **do not enable this on `push`.** The shipped trigger is
 `workflow_dispatch`, and the file carries a loud comment saying the same thing.

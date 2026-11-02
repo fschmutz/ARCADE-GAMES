@@ -19,8 +19,8 @@ name: scorecard
 # this becomes one of the largest lines on the Actions bill, in exchange for a
 # score that nobody outside the repository can even see.
 #
-# This is the BAM-PROD-ENGINE lesson written into a single file: a workflow
-# sized for a platform, billed against a repository that has nothing to build.
+# That is the whole risk in one file: a workflow sized for a platform, billed
+# against a repository that has nothing to build.
 #
 # The correct usage is a manual audit. Run it when you want the report — after
 # a settings change, before a security review, once a quarter. Read the
