@@ -1,0 +1,64 @@
+name: Documentation problem
+description: A page is wrong, missing, or misleading.
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation lives in `wiki/` in the repository, not in the GitHub wiki
+        UI — edits made in the UI are overwritten by the next sync. If you
+        already know the fix, a pull request against the file in `wiki/` is
+        faster than this form.
+
+        Never paste credentials, tokens, or customer identifiers into an issue.
+
+  - type: input
+    id: page
+    attributes:
+      label: Which page
+      description: The wiki page name or the path to the file.
+      placeholder: "wiki/Getting-Started.md, or README.md → Rulesets"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is wrong with it
+      options:
+        - Wrong — it says something that is not true
+        - Missing — the thing I needed is not written down anywhere
+        - Unclear — technically correct, but I could not act on it
+        - Stale — it described how things used to work
+        - Broken link or formatting
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: What it says, and what it should say
+      description: Quote the line if there is one. "Should say" can be a rough draft.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: What you were trying to do
+      description: >
+        The task you were on when the page failed you. This is usually what
+        turns a wording fix into the right fix.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: No secrets or customer data appear above.
+          required: true

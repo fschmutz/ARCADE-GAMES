@@ -1,0 +1,43 @@
+name: Feature request
+description: A new mode, a new game, or a way to make one more fun.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe what would change for the player before how to build it. A
+        request framed only as an implementation hides the constraint that
+        would have changed the design.
+
+  - type: dropdown
+    id: game
+    attributes:
+      label: For
+      options: [Snake, Pac-Man, Course, Casse-briques, A new game, The site]
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What would change for the player?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Including doing nothing, and why that is not enough.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true

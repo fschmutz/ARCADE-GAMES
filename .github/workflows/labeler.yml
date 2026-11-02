@@ -1,0 +1,40 @@
+name: labeler
+
+# Bundle D — triage. Default on.
+#
+# Labels a pull request from the paths it touches, using .github/labeler.yml.
+# Cheap triage: "what does this change" answered before a human opens the diff.
+#
+# `pull_request`, not `pull_request_target`. The safe trigger runs the workflow
+# from the base branch but gives a fork's pull request a read-only token, so the
+# job is skipped for forks rather than failing on a permission it cannot have.
+# `pull_request_target` would fix that by running with write access on a fork's
+# head — do not make that trade on a private repository to label a diff.
+#
+# sync-labels: true means the labeller removes a label it previously added when
+# the path no longer matches. It only touches labels named in labeler.yml, so a
+# label a human added by hand survives.
+#
+# To remove this bundle: delete this file, .github/labeler.yml, .github/labels.yml,
+# and .github/workflows/label-sync.yml.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: labeler-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    name: label by path
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0
+        with:
+          configuration-path: .github/labeler.yml
+          sync-labels: true

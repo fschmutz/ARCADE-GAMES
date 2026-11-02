@@ -1,0 +1,113 @@
+name: label-sync
+
+# Bundle D — triage. Default on.
+#
+# Applies .github/labels.yml to this repository's label set.
+#
+# Additive by default: it creates labels that are missing and updates the colour
+# and description of labels that exist. It deletes nothing unless you run it by
+# hand with prune enabled, because deleting a label silently removes it from
+# every issue that carried it.
+#
+# Runs on a push to the default branch that touches the label file, so the label
+# set and the file cannot drift. Safe to re-run: `gh label create --force` is
+# idempotent.
+#
+# Default-branch driven, like wiki.yml: the trigger takes every branch and the
+# job's `if:` keeps only the default one (`main` here, `prod` in a multi-branch
+# repository), so the file needs no edit per repository.
+#
+# To remove this bundle: delete this file, .github/labels.yml, .github/labeler.yml,
+# and .github/workflows/labeler.yml.
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - ".github/labels.yml"
+      - ".github/workflows/label-sync.yml"
+  workflow_dispatch:
+    inputs:
+      prune:
+        description: "Also delete labels that are not in .github/labels.yml"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: label-sync-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: sync labels
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # yq and jq are preinstalled on GitHub-hosted Ubuntu runners, and gh is
+      # the same CLI you would use locally. That is the whole reason this is a
+      # script and not a third-party action: no extra supply chain for a job
+      # that writes labels with a token.
+      - name: Apply .github/labels.yml
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PRUNE: ${{ inputs.prune }}
+        run: |
+          set -euo pipefail
+
+          for tool in yq jq gh; do
+            if ! command -v "${tool}" >/dev/null 2>&1; then
+              echo "::error::${tool} is not available on this runner; it is preinstalled on GitHub-hosted Ubuntu images"
+              exit 1
+            fi
+          done
+
+          # Two yq implementations are in circulation and they disagree about
+          # the default output format: mikefarah's Go yq (what GitHub-hosted
+          # runners ship) emits YAML unless told otherwise, the Python wrapper
+          # emits JSON already. Try the flag, fall back to the bare call.
+          yq -o=json '.' .github/labels.yml > "${RUNNER_TEMP}/labels.json" 2>/dev/null \
+            || yq '.' .github/labels.yml > "${RUNNER_TEMP}/labels.json"
+
+          mapfile -t rows < <(jq -c '.[]' "${RUNNER_TEMP}/labels.json")
+          for row in "${rows[@]}"; do
+            name="$(jq -r '.name' <<<"${row}")"
+            color="$(jq -r '.color' <<<"${row}")"
+            description="$(jq -r '.description // ""' <<<"${row}")"
+            echo "sync: ${name}"
+            gh label create "${name}" \
+              --color "${color}" \
+              --description "${description}" \
+              --force
+          done
+          echo "::notice title=Labels synced::${#rows[@]} label(s) from .github/labels.yml"
+
+          if [ "${PRUNE:-false}" != "true" ]; then
+            exit 0
+          fi
+
+          # Prune is manual and opt-in: a label removed here disappears from
+          # every issue and pull request that carried it, and that is not
+          # recoverable from this file.
+          mapfile -t wanted < <(jq -r '.[].name' "${RUNNER_TEMP}/labels.json")
+          mapfile -t present < <(gh label list --limit 200 --json name --jq '.[].name')
+          for label in "${present[@]}"; do
+            keep=false
+            for want in "${wanted[@]}"; do
+              if [ "${label}" = "${want}" ]; then
+                keep=true
+                break
+              fi
+            done
+            if [ "${keep}" = false ]; then
+              echo "prune: ${label}"
+              gh label delete "${label}" --yes
+            fi
+          done

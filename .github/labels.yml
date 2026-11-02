@@ -1,0 +1,97 @@
+# Bundle D — triage. Default on.
+#
+# The label set for this repository, as data. `.github/workflows/label-sync.yml`
+# applies it: on a push to main that touches this file, and on demand.
+#
+# Why a file and not the Settings UI: a label set created by hand drifts between
+# repositories until nobody can filter across them, and nobody can say who added
+# `wont-fix` next to `wontfix`. This file is reviewed like any other change.
+#
+# Colours are six hex digits, no leading `#`, and **always quoted**. Unquoted,
+# a value like 5319e7 is valid YAML scientific notation and reaches the API as
+# 53190000000 — the label is created in GitHub's default grey and nobody can
+# see why. Names are lowercase; the `area:` prefix groups the ones a human
+# scans for.
+#
+# Sync is additive by default — it creates and updates, it does not delete. Run
+# the workflow manually with `prune: true` to remove labels that are not listed
+# here, once you are sure nothing depends on them.
+#
+# To remove this bundle: delete this file, .github/labeler.yml, and the
+# label-sync and labeler workflows.
+
+# --- Type: what kind of change this is -------------------------------------
+- name: bug
+  color: "d73a4a"
+  description: Behaves differently from how it is documented
+
+- name: enhancement
+  color: "a2eeef"
+  description: New capability or a change in behaviour
+
+- name: documentation
+  color: "0075ca"
+  description: README, wiki, or the community files
+
+- name: chore
+  color: "cfd3d7"
+  description: Maintenance with no user-visible effect
+
+- name: security
+  color: "b60205"
+  description: Security posture, gates, or hardening — not a vulnerability report
+
+- name: breaking-change
+  color: "b60205"
+  description: Requires action from anyone who already uses this
+
+# --- Area: which part of the repository ------------------------------------
+- name: "area:ci"
+  color: "5319e7"
+  description: Workflows and checks
+
+- name: "area:wiki"
+  color: "8957e5"
+  description: wiki/ and the wiki sync
+
+- name: "area:github"
+  color: "1f6feb"
+  description: Repository configuration — ownership, templates, rulesets
+
+- name: "area:scripts"
+  color: "0e8a16"
+  description: scripts/
+
+- name: "area:games"
+  color: "d4a72c"
+  description: site/ — the games and the pages GitHub Pages serves
+
+- name: "area:tests"
+  color: "c5def5"
+  description: tests/ — unit, page contract, end-to-end
+
+# --- Status: where it is in the queue --------------------------------------
+- name: triage
+  color: "fbca04"
+  description: Not yet read by an owner
+
+- name: blocked
+  color: "e99695"
+  description: Waiting on something outside this repository
+
+- name: needs-info
+  color: "f9d0c4"
+  description: Cannot proceed until the reporter answers
+
+- name: wontfix
+  color: "ffffff"
+  description: Understood, and deliberately not being changed
+
+- name: duplicate
+  color: "cfd3d7"
+  description: Already tracked somewhere else
+
+# --- Automation -------------------------------------------------------------
+- name: dependencies
+  color: "0366d6"
+  description: Raised by Dependabot, or a dependency bump by hand

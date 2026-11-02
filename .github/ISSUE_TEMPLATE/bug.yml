@@ -1,7 +1,17 @@
-name: Bug
-description: Something does not work or looks broken
-labels: [bug]
+name: Bug report
+description: A game or a page does not work or looks broken.
+title: "bug: "
+labels: ["bug"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not report a security vulnerability here.** Use private reporting —
+        see the
+        [security policy](https://github.com/fschmutz/ARCADE-GAMES/security/policy).
+
+        Never paste credentials or tokens into an issue.
+
   - type: dropdown
     id: game
     attributes:
@@ -9,13 +19,27 @@ body:
       options: [Home page, Snake, Pac-Man, Course, Casse-briques, Everywhere]
     validations:
       required: true
+
   - type: textarea
     id: what
     attributes:
       label: What happened, and what did you expect?
-      placeholder: Steps to reproduce, mode and speed if it matters.
+      description: One or two sentences. What you saw, not what you think caused it.
     validations:
       required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The shortest path from opening the page to the problem. Mode and speed if it matters.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
   - type: input
     id: device
     attributes:
@@ -23,8 +47,32 @@ body:
       placeholder: e.g. iPhone 15, Safari 26 / Windows, Chrome 141
     validations:
       required: true
+
   - type: textarea
     id: screenshot
     attributes:
       label: Screenshot or recording
       description: Drag an image here if you have one.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - Blocking — the game cannot be played
+        - Significant — playable, but something important is wrong
+        - Minor — cosmetic or rare
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true

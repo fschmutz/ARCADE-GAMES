@@ -1,0 +1,72 @@
+# Bundle D — triage. Default on.
+#
+# Path-based labels for pull requests, applied by .github/workflows/labeler.yml.
+# Configuration format for actions/labeler v5 and later.
+#
+# A pull request can match several rules and gets every label that matches; that
+# is the point. `area:github` is wide on purpose — it is the "this changes the
+# rules everyone works under" signal, and it overlaps with the narrower areas.
+#
+# Every label named here should also exist in .github/labels.yml, or it will be
+# created with GitHub's default grey the first time it is applied.
+
+"area:ci":
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+          - ".pre-commit-config.yaml"
+
+"area:wiki":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "wiki/**"
+          - "scripts/wiki-sync.sh"
+          - ".github/workflows/wiki.yml"
+
+"area:github":
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+
+"area:scripts":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "scripts/**"
+
+"area:games":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "site/**"
+
+"area:tests":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**"
+          - "playwright.config.js"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "wiki/**"
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "SECURITY.md"
+          - ".github/gitleaks.toml"
+          - ".github/rulesets/**"
+          - ".github/workflows/dependency-review.yml"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/dependabot.yml"
+          - ".pre-commit-config.yaml"
+          - "**/package.json"
+          - "**/package-lock.json"
+          - ".dependency-holds.json"
+          - "**/requirements*.txt"
+          - "**/pyproject.toml"
+          - "**/go.mod"
+          - "**/Cargo.toml"
