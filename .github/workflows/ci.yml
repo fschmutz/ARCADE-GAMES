@@ -271,8 +271,11 @@ jobs:
 
       # Every file here is copied into other repositories, public ones included.
       # Internal repository names belong in the repositories that own them;
-      # CHANGELOG.md is the template's own history and stays as written.
+      # CHANGELOG.md is the template's own history and stays as written. Runs in
+      # the template only: a repository made from it may well be named BAM-...,
+      # and its own files say so. `is_template` survives the placeholder swap.
       - name: Shipped files name no internal repository
+        if: github.event.repository.is_template
         run: |
           set -euo pipefail
           if git ls-files -z -- . ':!:CHANGELOG.md' |
