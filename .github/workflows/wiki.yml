@@ -1,0 +1,56 @@
+name: wiki
+
+# The wiki/ directory in this repository is the single source of truth for the
+# GitHub wiki. On every push to the default branch that touches it, mirror it to
+# <repo>.wiki.git so nobody ever has to clone the wiki repository by hand.
+# (Do not edit pages through the GitHub wiki UI — this sync overwrites them.)
+#
+# Requires the wiki feature to be enabled: Settings → Features → Wikis. The wiki
+# repository does not exist until the first page is created, so the sync script
+# creates it on the first run.
+#
+# Two one-time steps before this ever succeeds, neither of them obvious:
+#   1. Create one page through the wiki UI. Enabling Wikis in Settings does not
+#      create <repo>.wiki.git, and a push cannot create it either. The sync
+#      overwrites that page on its first run.
+#   2. Run this workflow by hand (Actions → wiki → Run workflow). The paths filter
+#      below needs a before/after comparison, and the push that creates a
+#      repository from a template — or any force push that rewrites history — has
+#      none, so the workflow is skipped. That is what workflow_dispatch is for.
+#
+# Published from the default branch, whatever it is called: `main` here, `prod`
+# in a multi-branch repository. The trigger takes every branch and the job's
+# `if:` keeps only the default one, so the file needs no edit per repository.
+# Pushes to other branches start a run whose job is skipped, which costs no
+# runner time. The concurrency group carries the ref so one of those skipped
+# runs never replaces a pending default-branch run.
+on:
+  push:
+    branches: ["**"]
+    paths: ["wiki/**", "scripts/wiki-sync.sh", ".github/workflows/wiki.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish wiki
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The script takes the commit identity from the source commit's author, so
+      # the published wiki history names the person who edited the page rather
+      # than the CI identity that ran the job.
+      - name: Publish wiki/ to the GitHub wiki
+        env:
+          WIKI_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git
+        run: ./scripts/wiki-sync.sh
