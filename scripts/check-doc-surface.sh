@@ -16,6 +16,9 @@
 # does a wiki link to it. An entry without a reason, outside docs/, or matching
 # no tracked file fails: a declaration that outlives its file is drift too.
 #
+# YAML frontmatter at the top of a wiki page (between two `---` lines) is data,
+# not a link: a `path: docs/...` there names a file in another repository.
+#
 # Usage: scripts/check-doc-surface.sh   (from the repository root; reads git ls-files)
 set -euo pipefail
 
@@ -54,6 +57,14 @@ if [ -f "$exceptions_file" ]; then
   done <"$exceptions_file"
 fi
 
+# frontmatter_end FILE: the line number of the closing `---` of the YAML
+# frontmatter that opens FILE, or 0 when it has none.
+frontmatter_end() {
+  awk 'NR == 1 && $0 != "---" { exit }
+       NR > 1 && $0 == "---" { end = NR; exit }
+       END { print end + 0 }' "$1"
+}
+
 # is_declared PATH: true when PATH is a declared file or sits under a declared directory.
 is_declared() {
   local declared
@@ -83,6 +94,10 @@ if git ls-files -- 'wiki/*.md' 'wiki/**/*.md' | grep -q .; then
   # another docs/ path still reports the second one.
   while IFS= read -r hit; do
     [ -n "$hit" ] || continue
+    hit_file="${hit%%:*}"
+    hit_line="${hit#*:}"
+    hit_line="${hit_line%%:*}"
+    [ "$hit_line" -le "$(frontmatter_end "$hit_file")" ] && continue
     target="${hit#*:*:}"
     target="docs/${target#*docs/}"
     target="${target%%#*}"

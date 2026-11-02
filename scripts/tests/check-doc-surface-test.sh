@@ -69,6 +69,17 @@ run_case "a page under docs/ fails" 1 \
 run_case "an image under docs/screenshots/ passes" 0 \
   docs/screenshots/home.png 'not really a png'
 
+# --- frontmatter -----------------------------------------------------------------
+
+run_case "a docs/ path in the frontmatter is data, not a link" 0 \
+  wiki/Home.md $'---\npath: docs/PLAN.md\nrepo: other/repo\n---\n# Home'
+run_case "the same path in the body still fails" 1 \
+  wiki/Home.md $'---\ntitle: Home\n---\nSee docs/PLAN.md.'
+run_case "a page without frontmatter is checked from line 1" 1 \
+  wiki/Home.md $'path: docs/PLAN.md\n---\n# Home'
+run_case "an unclosed frontmatter is not frontmatter" 1 \
+  wiki/Home.md $'---\npath: docs/PLAN.md'
+
 # --- declared exceptions (.github/doc-surface-exceptions.txt) -------------------
 
 readonly EXC=".github/doc-surface-exceptions.txt"

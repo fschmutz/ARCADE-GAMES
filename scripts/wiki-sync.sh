@@ -7,9 +7,14 @@
 # GitHub wiki UI are overwritten. That is the point: one source, reviewed in a
 # pull request like any other change.
 #
-# Called by .github/workflows/wiki.yml. Runs locally too:
+# Called by .github/workflows/wiki.yml. Runs locally too, from a checkout whose
+# origin is the repository (WIKI_URL defaults to origin's URL with .wiki.git):
 #
+#   ./scripts/wiki-sync.sh
 #   WIKI_URL="https://github.com/OWNER/REPO.wiki.git" ./scripts/wiki-sync.sh
+#
+# Outside CI, a machine that guards plain `git push` behind a `push-confirm`
+# alias gets the push through that alias, so the guard still asks.
 #
 # One-time setup, and the thing that surprises everyone: enabling Wikis in the
 # repository settings does not create the <repo>.wiki.git remote. GitHub creates
@@ -18,18 +23,22 @@
 # sync overwrites it on the next run.
 #
 # Environment:
-#   WIKI_URL           required — push URL of the <repo>.wiki.git remote
+#   WIKI_URL           push URL of the <repo>.wiki.git remote; defaults to the
+#                      origin remote's URL with .git replaced by .wiki.git
 #   GIT_AUTHOR_NAME    optional — defaults to the author of the source commit
 #   GIT_AUTHOR_EMAIL   optional
 #
 set -euo pipefail
 
-if [ -z "${WIKI_URL:-}" ]; then
-  echo "wiki-sync: WIKI_URL is not set" >&2
-  exit 1
-fi
-
 repo_root="$(git rev-parse --show-toplevel)"
+
+if [ -z "${WIKI_URL:-}" ]; then
+  if ! origin_url="$(git -C "${repo_root}" remote get-url origin 2>/dev/null)"; then
+    echo "wiki-sync: WIKI_URL is not set and there is no origin remote to derive it from" >&2
+    exit 1
+  fi
+  WIKI_URL="${origin_url%.git}.wiki.git"
+fi
 source_dir="${repo_root}/wiki"
 
 if [ ! -d "${source_dir}" ]; then
@@ -102,5 +111,11 @@ git commit --quiet --no-verify \
   --message "docs(wiki): sync from ${short_sha:0:12}" \
   --message "Generated from wiki/ by scripts/wiki-sync.sh. Do not edit pages in the GitHub wiki UI."
 
-git push --quiet origin "HEAD:${branch}"
+if [ -z "${GITHUB_ACTIONS:-}" ] && git config --get alias.push-confirm >/dev/null; then
+  # --no-rebase: the clone was taken moments ago and the mirror replaces the
+  # wiki wholesale, so there is nothing to rebase onto.
+  git push-confirm --no-rebase origin "HEAD:${branch}"
+else
+  git push --quiet origin "HEAD:${branch}"
+fi
 echo "wiki-sync: published $(find . -name '*.md' -not -path './.git/*' | wc -l | tr -d ' ') page(s)"
