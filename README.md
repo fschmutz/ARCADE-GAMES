@@ -67,15 +67,20 @@ The in-game text is in French. Best scores are kept in the browser per game, mod
 
 ## Quality gates
 
-Every pull request and every push to `main` runs, and branch protection requires:
+Every pull request and every push to `main` runs, and the `main` ruleset ([`.github/rulesets/main.example.json`](.github/rulesets/main.example.json)) requires:
 
 | Job | What it proves |
 |---|---|
 | Lint, typecheck, end-to-end | Supply chain (every action SHA-pinned to its latest release, every dependency at its latest version unless declared in `.dependency-holds.json`), `npm audit`, oxlint, strict TypeScript, unit tests, the page contract (metadata, CSP, links, sitemap, offline cache list), gameplay on desktop Chrome |
 | E2E matrix | Gameplay on desktop WebKit (Safari engine), then layout and touch controls on a Pixel 7, iPhone 15, iPhone SE and iPad: every page fits the screen, no sideways scroll, a tap starts each game |
+| workflow syntax | Every workflow parses under actionlint, the disabled bundle workflows included |
+| template structure | Every file the house template promises is present, every script is executable, every `uses:` is pinned to a full commit SHA, the off-by-default bundles are still off, and `docs/` holds nothing but `docs/screenshots/` |
+| screenshots | This README shows the site: every image under `docs/screenshots/` is referenced, has alt text, and weighs at most 600 KB |
 | attribution guard | On pull requests: every commit is authored and committed by an address on [`.github/attribution-allow.txt`](.github/attribution-allow.txt) or by an allow-listed bot, and under a name that reads as a person rather than a tool; no `Co-authored-by:` trailer names anyone else; and no commit message, pull request title or body carries an assistant footer |
 
-`scripts/attribution-guard.sh` is copied byte for byte from the organisation template so every repository runs the same script: change it there and copy it again, do not fork it in place. `scripts/tests/attribution-guard-test.sh` holds the 30 cases it has to keep getting right and runs inside the first gate as well, because a guard that has quietly stopped matching is worse than no guard. The name beside the address is checked on its own, so an allow-listed address does not make a tool a person; a real person whose name collides needs a `name:` line. Widening the allow list is a reviewed decision, never a step towards a green check. The check is required under its own name, so renaming the job drops it from branch protection.
+`dependency review` (pull requests that change `package.json` or the lockfile) and `label by path` also run, but only on the pull requests they apply to, so they are not required.
+
+The repository follows the house GitHub template, `ScaleMeNow/GITHUB-TEMPLATE`. Its scripts (`scripts/*.sh`, `scripts/tests/*.sh`) are copied byte for byte so every repository runs the same code: change them there and copy them again, do not fork them in place. `scripts/tests/attribution-guard-test.sh` holds the 34 cases the attribution guard has to keep getting right and runs inside the first gate as well, because a guard that has quietly stopped matching is worse than no guard. The name beside the address is checked on its own, so an allow-listed address does not make a tool a person; a real person whose name collides needs a `name:` line. Widening the allow list is a reviewed decision, never a step towards a green check. Each check is required under its own name, so renaming a job drops it from the ruleset.
 
 A green `main` deploys `site/` to GitHub Pages, then smoke-tests every sitemap URL and the 404 on the live site.
 
@@ -90,7 +95,11 @@ npm run serve                   # http://127.0.0.1:4173/ARCADE-GAMES/
 npm run check                   # lint + typecheck + unit + page contract + all e2e projects
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the ground rules and [SECURITY.md](SECURITY.md) to report a vulnerability.
+## Documentation
+
+The [wiki](https://github.com/fschmutz/ARCADE-GAMES/wiki) is the documentation, generated from [`wiki/`](wiki/Home.md): [Getting Started](https://github.com/fschmutz/ARCADE-GAMES/wiki/Getting-Started), [Bundles](https://github.com/fschmutz/ARCADE-GAMES/wiki/Bundles), [Architecture Decisions](https://github.com/fschmutz/ARCADE-GAMES/wiki/Architecture-Decisions).
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the ground rules, [AGENTS.md](AGENTS.md) for the version every AI assistant is held to, [SUPPORT.md](SUPPORT.md) to ask a question, [SECURITY.md](SECURITY.md) to report a vulnerability, and [CHANGELOG.md](CHANGELOG.md) for what changed.
 
 ## Credits
 
