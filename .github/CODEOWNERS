@@ -1,1 +1,37 @@
-* @fschmutz
+# Review ownership. The last matching pattern wins, so order matters.
+#
+# Keep a real human on `*` — an unowned repository has no reviewer, and a
+# ruleset that requires a CODEOWNERS review will block every pull request.
+
+# Default owner for everything in the repository.
+*                       @fschmutz
+
+# Repository configuration: workflows, ownership, and issue templates change the
+# rules everyone else works under, so they are reviewed separately.
+/.github/               @fschmutz
+/.github/workflows/     @fschmutz
+/.github/CODEOWNERS     @fschmutz
+
+# Security posture and licensing.
+/SECURITY.md            @fschmutz
+/LICENSE                @fschmutz
+
+# The contract every AI assistant works under, and the bundles that are
+# deliberately switched off. Both change what runs without changing what the
+# repository does, which is exactly the kind of diff that gets skimmed.
+/AGENTS.md              @fschmutz
+/CLAUDE.md              @fschmutz
+/.github/copilot-instructions.md @fschmutz
+/.github/bundles/       @fschmutz
+
+# Secret-scanning and hook configuration — relaxing these is a security decision.
+/.github/gitleaks.toml  @fschmutz
+/.pre-commit-config.yaml @fschmutz
+
+# The supply-chain gate and its declared exceptions: a hold here is a decision
+# to stay behind a release, so it is reviewed like one.
+/.dependency-holds.json @fschmutz
+/scripts/check-latest.mjs @fschmutz
+
+# Add path owners as the repository grows, for example:
+# /site/pacman/         @fschmutz @deputy
