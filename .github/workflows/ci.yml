@@ -6,8 +6,15 @@
 # that nobody merged turns main red instead of rotting quietly. The only exceptions are
 # the named holds in .dependency-holds.json.
 #
-# Branch protection requires both gate jobs by name. Renaming a job silently drops it
-# from the required checks, so rename the context in the protection rule at the same time.
+# The template jobs (`workflow syntax`, `template structure`, `screenshots`) come from
+# ScaleMeNow/GITHUB-TEMPLATE: the workflow files parse, the template's files are still
+# there, every action is pinned, the off-by-default bundles are still off, and the
+# repository shows what it looks like (ADR-0002). `attribution guard` runs in its own
+# workflow because it needs the `edited` trigger.
+#
+# The ruleset (.github/rulesets/main.example.json) requires the two Arcade gates and the
+# four template checks by name. Renaming a job silently drops it from the required checks,
+# so rename the context in the ruleset, and apply it, at the same time.
 name: CI
 
 on:
@@ -122,13 +129,252 @@ jobs:
         run: |
           set -euo pipefail
           sleep 15
-          for url in $(grep -o '<loc>[^<]*</loc>' site/sitemap.xml | sed 's/<[^>]*>//g'); do
+          while IFS= read -r url; do
             for attempt in 1 2 3 4 5 6; do
               if curl -fsS "$url" | grep -q 'Lino from Marrakech'; then echo "ok  $url"; break; fi
               [ "$attempt" = 6 ] && { echo "::error::$url did not serve the site"; exit 1; }
               sleep 10
             done
-          done
+          done < <(grep -o '<loc>[^<]*</loc>' site/sitemap.xml | sed 's/<[^>]*>//g')
           status=$(curl -s -o /tmp/404.html -w '%{http_code}' "${PAGE_URL}this-page-does-not-exist/")
           test "$status" = 404 && grep -q 'Page introuvable' /tmp/404.html
           echo "ok  custom 404"
+
+  # --- From ScaleMeNow/GITHUB-TEMPLATE (bundle A, core) ----------------------------
+
+  actionlint:
+    name: workflow syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Lint workflow files
+        # The release tarball, checked against its pinned digest: a script piped
+        # from a mutable tag would run whatever the tag points at today. Bump
+        # both lines together from the release's checksums.txt.
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+        run: |
+          set -euo pipefail
+          tgz="${RUNNER_TEMP}/actionlint.tar.gz"
+          curl -sSfLo "${tgz}" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          echo "${ACTIONLINT_SHA256}  ${tgz}" | sha256sum -c -
+          tar -xzf "${tgz}" -C "${RUNNER_TEMP}" actionlint
+          "${RUNNER_TEMP}/actionlint" -color
+
+      # A disabled bundle workflow is not in .github/workflows/, so nothing else
+      # ever looks at it — it rots quietly until the day somebody enables it and
+      # discovers it has never parsed. Lint it here under a temporary name.
+      - name: Lint the disabled bundle workflows
+        run: |
+          set -euo pipefail
+          staged="${RUNNER_TEMP}/bundle-workflows"
+          mkdir -p "${staged}"
+          count=0
+          while IFS= read -r -d '' file; do
+            # Flatten bundles/release/sbom.yml.disabled to release-sbom.yml so
+            # two bundles can use the same workflow name without colliding.
+            bundle="$(basename "$(dirname "${file}")")"
+            cp "${file}" "${staged}/${bundle}-$(basename "${file}" .disabled)"
+            count=$((count + 1))
+          done < <(find .github/bundles -type f -name '*.yml.disabled' -print0 2>/dev/null)
+          if [ "${count}" -eq 0 ]; then
+            echo "no disabled bundle workflows to lint"
+            exit 0
+          fi
+          "${RUNNER_TEMP}/actionlint" -color "${staged}"/*.yml
+          echo "linted ${count} disabled bundle workflow(s)"
+
+  structure:
+    name: template structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Every file the template promises is present
+        run: |
+          set -euo pipefail
+          missing=0
+          while read -r path; do
+            if [ -n "${path}" ] && [ ! -e "${path}" ]; then
+              echo "::error file=${path}::missing from the template tree"
+              missing=1
+            fi
+          done <<'PATHS'
+          README.md
+          CHANGELOG.md
+          SECURITY.md
+          SUPPORT.md
+          CONTRIBUTING.md
+          AGENTS.md
+          CLAUDE.md
+          LICENSE
+          .gitignore
+          .pre-commit-config.yaml
+          wiki/Home.md
+          wiki/Getting-Started.md
+          wiki/Bundles.md
+          wiki/Architecture-Decisions.md
+          wiki/ADR/0000-Template.md
+          scripts/wiki-sync.sh
+          scripts/apply-ruleset.sh
+          scripts/check-repo-settings.sh
+          scripts/check-screenshots.sh
+          scripts/check-doc-surface.sh
+          scripts/attribution-guard.sh
+          scripts/tests/attribution-guard-test.sh
+          scripts/tests/check-doc-surface-test.sh
+          .github/attribution-allow.txt
+          .github/CODEOWNERS
+          .github/dependabot.yml
+          .github/copilot-instructions.md
+          .github/PULL_REQUEST_TEMPLATE.md
+          .github/gitleaks.toml
+          .github/labels.yml
+          .github/labeler.yml
+          .github/ISSUE_TEMPLATE/config.yml
+          .github/ISSUE_TEMPLATE/bug.yml
+          .github/ISSUE_TEMPLATE/feature.yml
+          .github/ISSUE_TEMPLATE/docs.yml
+          .github/workflows/ci.yml
+          .github/workflows/attribution-guard.yml
+          .github/workflows/wiki.yml
+          .github/workflows/dependency-review.yml
+          .github/workflows/labeler.yml
+          .github/workflows/label-sync.yml
+          .github/rulesets/main.example.json
+          .github/rulesets/multi-branch.example.json
+          .github/bundles/README.md
+          PATHS
+          exit "${missing}"
+
+      # A script with a shebang is an entry point and must be executable. A
+      # sourced library (scripts/lib/*.sh) has no shebang and is only parsed.
+      - name: The helper scripts are executable
+        run: |
+          set -euo pipefail
+          bad=0
+          while IFS= read -r script; do
+            if [ "$(head -c2 "${script}")" = '#!' ] && [ ! -x "${script}" ]; then
+              echo "::error file=${script}::not executable — run: git update-index --chmod=+x ${script}"
+              bad=1
+            fi
+            bash -n "${script}"
+          done < <(git ls-files -- 'scripts/*.sh')
+          exit "${bad}"
+
+      # Relative links in the repository's markdown outside wiki/ (wiki pages
+      # link by page name, which only the wiki resolves) must point at a file.
+      # A link that climbs out of the repository (../../issues/new from the
+      # root) is a GitHub route, not a file, and is left alone.
+      - name: Relative markdown links resolve
+        run: |
+          set -euo pipefail
+          bad=0
+          while IFS= read -r file; do
+            while IFS=: read -r line target; do
+              target="${target#](}"
+              target="${target%)}"
+              target="${target%%#*}"
+              [ -n "${target}" ] || continue
+              resolved="$(realpath -m --relative-to=. "$(dirname "${file}")/${target}")"
+              case "${resolved}" in ..|../*) continue ;; esac
+              if [ ! -e "${resolved}" ]; then
+                echo "::error file=${file},line=${line}::broken link: ${target}"
+                bad=1
+              fi
+            done < <(grep -noE '\]\([^)#:][^):]*\)' "${file}" || true)
+          done < <(git ls-files -- '*.md' ':!:wiki/**')
+          exit "${bad}"
+
+      - name: The ruleset examples are valid JSON
+        run: |
+          set -euo pipefail
+          for ruleset in .github/rulesets/*.json; do
+            python3 -c 'import json, sys; json.load(open(sys.argv[1]))' "${ruleset}"
+            echo "valid: ${ruleset}"
+          done
+
+      # docs/screenshots/ holds images, not prose (ADR-0002). Anything else
+      # under docs/ is a second documentation surface next to wiki/, and a wiki
+      # link into docs/ is dead once pages move. The script is the single
+      # implementation; this step and the pre-commit hook only call it.
+      - name: Documentation has one source, not two
+        run: ./scripts/check-doc-surface.sh
+
+      - name: The doc-surface check holds against its cases
+        run: ./scripts/tests/check-doc-surface-test.sh
+
+      # Bundle C. A tag is mutable: `v7` moves, and a compromised release moves
+      # it onto the runner holding this repository's token. Dependabot bumps the
+      # SHA and rewrites the trailing comment, so this costs nothing to keep.
+      - name: Every action is pinned to a full commit SHA
+        run: |
+          set -euo pipefail
+          bad=0
+          while IFS= read -r match; do
+            file="${match%%:*}"
+            rest="${match#*:}"
+            lineno="${rest%%:*}"
+            content="${rest#*:}"
+
+            spec="${content#*uses:}"
+            spec="${spec%%#*}"
+            spec="$(printf '%s' "${spec}" | tr -d '[:space:]')"
+
+            # Local actions and container actions have no SHA to pin.
+            case "${spec}" in
+              ./*|docker://*) continue ;;
+            esac
+
+            ref="${spec##*@}"
+            if ! printf '%s' "${ref}" | grep -qE '^[0-9a-f]{40}$'; then
+              echo "::error file=${file},line=${lineno}::uses: ${spec} is not pinned to a full commit SHA — see CONTRIBUTING.md, Workflows"
+              bad=1
+            elif ! printf '%s' "${content}" | grep -qE '#[[:space:]]*v'; then
+              echo "::warning file=${file},line=${lineno}::pinned, but with no version comment — Dependabot reads it, and so do humans"
+            fi
+          done < <(grep -rHnE '^[[:space:]]*(-[[:space:]]+)?uses:[[:space:]]' .github/workflows/)
+          exit "${bad}"
+
+      # Bundle F, G, H ship present and inert. The suffix is what keeps them
+      # that way, so it is the thing worth checking: GitHub runs `.yml` under
+      # `.github/workflows/` and reads `CODE_OF_CONDUCT.md`, and neither
+      # description fits a file that ends in `.disabled` or `.example`.
+      - name: The off-by-default bundles are still off
+        run: |
+          set -euo pipefail
+          bad=0
+          while IFS= read -r -d '' file; do
+            case "${file}" in
+              */README.md|*.disabled|*.example) continue ;;
+              *)
+                echo "::error file=${file}::every file under .github/bundles/ must end in .disabled or .example, or be a README.md — see .github/bundles/README.md"
+                bad=1
+                ;;
+            esac
+          done < <(find .github/bundles -type f -print0)
+          exit "${bad}"
+
+  # Bundle A. Screenshots are mandatory (ADR-0002): a `## Screenshots` section
+  # in the README backed by docs/screenshots/, or a declared reason in
+  # .github/screenshots-exempt. The script is the single implementation; this
+  # job and the pre-commit hook only call it.
+  screenshots:
+    name: screenshots
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Screenshots are present, referenced, and small
+        run: ./scripts/check-screenshots.sh
