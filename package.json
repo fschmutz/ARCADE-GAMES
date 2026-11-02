@@ -11,6 +11,7 @@
   "scripts": {
     "serve": "node scripts/serve.mjs",
     "og": "node scripts/make-og.mjs",
+    "screenshots": "node scripts/capture-screenshots.mjs",
     "lint": "oxlint --deny-warnings",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.sw.json && tsc -p tsconfig.node.json",
     "test:unit": "node --test \"tests/unit/*.test.js\"",

@@ -1,4 +1,33 @@
+<div align="center">
+
 # Arcade
+
+**Snake, Pac-Man, a car racing game and Breakout, playable in the browser on desktop and mobile, even offline.**
+
+[![Play](https://img.shields.io/badge/play-fschmutz.github.io%2FARCADE--GAMES-4f46e5)](https://fschmutz.github.io/ARCADE-GAMES/)
+[![CI](https://github.com/fschmutz/ARCADE-GAMES/actions/workflows/ci.yml/badge.svg)](https://github.com/fschmutz/ARCADE-GAMES/actions/workflows/ci.yml)
+[![docs](https://img.shields.io/badge/docs-wiki--as--code-8957e5)](https://github.com/fschmutz/ARCADE-GAMES/wiki)
+[![license](https://img.shields.io/badge/license-MIT-0e8a16)](LICENSE)
+
+</div>
+
+---
+
+## Screenshots
+
+Captured from the real site by `npm run screenshots` (system Chrome, dark theme, 1280 × 800).
+
+| Home | Snake |
+|---|---|
+| <img src="docs/screenshots/home.png" alt="The arcade home page in the dark theme: four game cards, Snake, Pac-Man, Course and Casse-briques, each with an illustration, a one-line French description and a Jouer link" width="420"> | <img src="docs/screenshots/snake.png" alt="Snake in play: the snake crossing the grid towards an apple, with the speed, apple count and mode pickers above it" width="420"> |
+| **Pac-Man** | **Course** |
+| <img src="docs/screenshots/pacman.png" alt="Pac-Man in play: Pac-Man in the lower maze with a score of 70 while the ghosts leave their house" width="420"> | <img src="docs/screenshots/course.png" alt="Course in play: the player's car at the bottom of a four-lane highway, traffic ahead, the nitro gauge and the speed in km/h" width="420"> |
+| **Casse-briques** | |
+| <img src="docs/screenshots/casse-briques.png" alt="Casse-briques in play: the ball rising after breaking a yellow brick, rows of coloured bricks above the paddle" width="420"> | |
+
+Screenshots are mandatory ([ADR-0002](wiki/ADR/0002-Screenshots-Are-Mandatory.md)): `scripts/check-screenshots.sh` fails CI and pre-commit when this section, an image, or a reference goes missing. Recapture them in the same pull request as any visible change, and look at each one before committing it.
+
+## The games
 
 Four browser games, playable on desktop and mobile, even offline:
 
